@@ -26,12 +26,12 @@ export default defineNuxtConfig({
     ],
   },
   runtimeConfig: {
-    graphqlURL: process.env.GRAPHQL_URL,
+    graphqlURL: process.env.PORTAL_URL,
     graphqlToken: process.env.GRAPHQL_TOKEN,
     graphUrlServer: process.env.GRAPHQL_URL_SERVER,
     apiKey: process.env.API_KEY,
     public: {
-      graphqlURL: process.env.GRAPHQL_URL,
+      graphqlURL: process.env.PORTAL_URL,
       graphqlToken: process.env.GRAPHQL_TOKEN,
       graphUrlServer: process.env.GRAPHQL_URL_SERVER,
       apiKey: process.env.API_KEY,
@@ -41,21 +41,11 @@ export default defineNuxtConfig({
     autoImports: true,
     clients: {
       default: {
-        httpEndpoint: process.env.GRAPHQL_URL,
+        httpEndpoint: process.env.PORTAL_URL,
         httpLinkOptions: {
-          headers: {
-            Authorization: `Bearer ${process.env.GRAPHQL_TOKEN}`,
-          },
+          credentials: 'include',
         },
       },
-      graphQLAPI:{
-        httpEndpoint:process.env.GRAPHQL_URL_SERVER,
-        httpLinkOptions: {
-          headers: {
-            'X-API-KEY': process.env.API_KEY,
-          },
-        },
-      }
     },
   },
   postcss: {

@@ -1,0 +1,14 @@
+mutation Login($nombreUsuario: String!, $contrasena: String!) {
+  usuario {
+    login(nombreUsuario: $nombreUsuario, contrasena: $contrasena) {
+      exito
+      mensaje
+      token
+      usuario {
+        idUsuario
+        nombreUsuario
+        rol
+      }
+    }
+  }
+}

@@ -7,7 +7,9 @@ import TextInput from '~/components/inputs/TextInput.vue'
 import { Form } from 'vee-validate'
 import * as yup from 'yup'
 import { ref } from 'vue'
-
+import LoginMutation from '~/api/auth/login.gql'
+import { useMutation } from '@vue/apollo-composable'
+const { mutate, onDone, onError } = useMutation(LoginMutation)
 
 const auth = useAuthStore()
 
@@ -32,6 +34,7 @@ const schema = yup.object({
   Password: yup.string().required('La contraseña es obligatoria'),
 })
 
+
 const processing = ref(false)
 const errorMessage = ref('')
 
@@ -40,28 +43,31 @@ const submit = async (values: any) => {
   errorMessage.value = ''
 
   try {
-    // Simulamos login
-    const usuariosSimulados = [
-      { username: 'cramirez', password: '1234', rol: 'Cajero' },
-      { username: 'amorales', password: '1234', rol: 'Supervisor' }
-    ]
+    const { data } = await mutate({
+      nombreUsuario: values.Username,
+      contrasena: values.Password
+    })
 
-    const usuario = usuariosSimulados.find(
-      u => u.username === values.Username && u.password === values.Password
-    )
-
-    if (!usuario) {
-      errorMessage.value = 'Usuario o contraseña incorrectos'
-    } else {
-      auth.login(usuario.username, usuario.rol)
-      return navigateTo('/')
+    const response = data?.usuario?.login
+    if (!response || !response.exito) {
+      errorMessage.value = response?.mensaje || 'Credenciales incorrectas'
+      return
     }
+
+    const { nombreUsuario, rol } = response.usuario
+    auth.login(nombreUsuario, rol, response.token)
+
+    localStorage.setItem('token', response.token)
+
+    navigateTo('/')
   } catch (err) {
-    errorMessage.value = 'Error inesperado'
+    console.error(err)
+    errorMessage.value = 'Error al intentar iniciar sesión'
   } finally {
     processing.value = false
   }
 }
+
 
 function onInvalidSubmit() {
   console.log('Formulario inválido')
