@@ -1,0 +1,12 @@
+query GetProductos {
+  productos {
+    codProducto
+    nombre
+    precioCompra
+    precioVenta
+    idCategoria
+    idCategoriaNavigation {
+      nombre
+    }
+  }
+}

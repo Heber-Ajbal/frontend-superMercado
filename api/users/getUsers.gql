@@ -1,0 +1,12 @@
+query {
+  usuarios {
+    idUsuario
+    nombreUsuario
+    rol
+    activo
+    idEmpleadoNavigation {
+      nombre
+      apellidoPaterno
+    }
+  }
+}

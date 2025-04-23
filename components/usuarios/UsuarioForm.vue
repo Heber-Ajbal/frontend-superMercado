@@ -1,65 +1,74 @@
 <script setup lang="ts">
-import { defineProps, defineEmits, ref, watch } from 'vue'
+import { defineEmits, ref } from 'vue'
+import { useMutation } from '@vue/apollo-composable'
+import CrearEmpleadoConUsuario from '~/api/users/crearUsuario.gql'
 
-const props = defineProps<{ usuario: any | null }>()
 const emit = defineEmits(['close'])
 
-const empleados = ['Carlos Ramírez', 'Ana Morales']
 const roles = ['Cajero', 'Supervisor', 'Encargado de Almacén']
+const turnos = ['Mañana', 'Tarde', 'Completo']
 
 const form = ref({
-  NombreUsuario: '',
-  Empleado: '',
-  Contrasena: '',
-  Rol: 'Cajero',
-  Activo: true,
+  nombre: '',
+  apellidoPaterno: '',
+  apellidoMaterno: '',
+  sueldo: 0,
+  turno: 'Mañana',
+  cargo: 'Cajero',
+
+  nombreUsuario: '',
+  contrasena: '',
+  rol: 'Cajero'
 })
 
-watch(() => props.usuario, (nuevo) => {
-  if (nuevo) {
-    form.value = {
-      NombreUsuario: nuevo.NombreUsuario,
-      Empleado: nuevo.Empleado,
-      Contrasena: '', // No mostramos la actual por seguridad
-      Rol: nuevo.Rol,
-      Activo: nuevo.Activo,
-    }
-  } else {
-    form.value = {
-      NombreUsuario: '',
-      Empleado: '',
-      Contrasena: '',
-      Rol: 'Cajero',
-      Activo: true,
-    }
-  }
-}, { immediate: true })
+const { mutate, onDone, onError } = useMutation(CrearEmpleadoConUsuario)
 
-function guardar() {
-  // Aquí conectarás con el backend
-  emit('close')
+async function guardar() {
+  try {
+    await mutate({
+      nombreEmpleado: form.value.nombre,
+      apellidoPaterno: form.value.apellidoPaterno,
+      apellidoMaterno: form.value.apellidoMaterno,
+      sueldo: form.value.sueldo,
+      turno: form.value.turno,
+      cargo: form.value.rol,
+      nombreUsuario: form.value.nombreUsuario,
+      contrasena: form.value.contrasena,
+      rol: form.value.rol
+    })
+
+    emit('close')
+  } catch (err) {
+    console.error('Error al crear usuario:', err)
+  }
 }
 </script>
 
 <template>
   <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-md shadow-xl">
-      <h3 class="text-xl font-bold mb-4">{{ props.usuario ? 'Editar Usuario' : 'Nuevo Usuario' }}</h3>
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-xl shadow-xl">
+      <h3 class="text-xl font-bold mb-4">Registrar Empleado + Usuario</h3>
 
       <form @submit.prevent="guardar" class="grid gap-4">
-        <input v-model="form.NombreUsuario" placeholder="Nombre de Usuario" class="input" required />
-        <select v-model="form.Empleado" class="input" required>
-          <option value="">Seleccionar Empleado</option>
-          <option v-for="e in empleados" :key="e" :value="e">{{ e }}</option>
-        </select>
-        <input v-model="form.Contrasena" type="password" placeholder="Contraseña" class="input" :required="!props.usuario" />
-        <select v-model="form.Rol" class="input">
-          <option v-for="r in roles" :key="r" :value="r">{{ r }}</option>
-        </select>
-        <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
-          <input type="checkbox" v-model="form.Activo" />
-          Usuario activo
-        </label>
+        <!-- Datos del empleado -->
+        <div class="grid gap-2">
+          <input v-model="form.nombre" placeholder="Nombre del empleado" class="input" required />
+          <input v-model="form.apellidoPaterno" placeholder="Apellido paterno" class="input" required />
+          <input v-model="form.apellidoMaterno" placeholder="Apellido materno" class="input" required />
+          <input v-model.number="form.sueldo" type="number" min="0" step="0.01" placeholder="Sueldo" class="input" required />
+          <select v-model="form.turno" class="input">
+            <option v-for="t in turnos" :key="t" :value="t">{{ t }}</option>
+          </select>
+        </div>
+
+        <!-- Datos del usuario -->
+        <div class="grid gap-2 border-t pt-4 mt-4">
+          <input v-model="form.nombreUsuario" placeholder="Nombre de Usuario" class="input" required />
+          <input v-model="form.contrasena" type="password" placeholder="Contraseña" class="input" required />
+          <select v-model="form.rol" class="input">
+            <option v-for="r in roles" :key="r" :value="r">{{ r }}</option>
+          </select>
+        </div>
 
         <div class="flex justify-end gap-2">
           <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded" @click="$emit('close')">Cancelar</button>

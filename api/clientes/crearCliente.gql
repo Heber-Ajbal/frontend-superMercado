@@ -1,0 +1,12 @@
+mutation CrearCliente($input: ClienteInput!) {
+  cliente {
+    crearCliente(input: $input) {
+      idCliente
+      nombre
+      apellidoPaterno
+      apellidoMaterno
+      direccion
+      telefono
+    }
+  }
+}

@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { defineProps, defineEmits, ref, watch } from 'vue'
+import { useMutation } from '@vue/apollo-composable'
+import CrearCliente from '~/api/clientes/crearCliente.gql'
 
 const props = defineProps<{ cliente: any | null }>()
 const emit = defineEmits(['close'])
@@ -12,23 +14,36 @@ const form = ref({
   Telefono: '',
 })
 
+// Cuando se edita un cliente, carga los datos en el formulario
 watch(() => props.cliente, (nuevo) => {
-  if (nuevo) {
-    form.value = { ...nuevo }
-  } else {
-    form.value = {
-      Nombre: '',
-      Apellido_Paterno: '',
-      Apellido_Materno: '',
-      Direccion: '',
-      Telefono: '',
-    }
-  }
+  form.value = nuevo
+    ? { ...nuevo }
+    : {
+        Nombre: '',
+        Apellido_Paterno: '',
+        Apellido_Materno: '',
+        Direccion: '',
+        Telefono: ''
+      }
 }, { immediate: true })
 
-function guardar() {
-  // Aquí luego llamaremos al backend
-  emit('close')
+const { mutate } = useMutation(CrearCliente)
+
+async function guardar() {
+  try {
+    await mutate({
+      input: {
+        nombre: form.value.Nombre,
+        apellidoPaterno: form.value.Apellido_Paterno,
+        apellidoMaterno: form.value.Apellido_Materno,
+        direccion: form.value.Direccion,
+        telefono: form.value.Telefono
+      }
+    })
+    emit('close')
+  } catch (error) {
+    console.error('Error al guardar cliente:', error)
+  }
 }
 </script>
 
@@ -38,11 +53,11 @@ function guardar() {
       <h3 class="text-xl font-bold mb-4">{{ props.cliente ? 'Editar Cliente' : 'Agregar Cliente' }}</h3>
 
       <form @submit.prevent="guardar" class="grid gap-4">
-        <input v-model="form.Nombre" placeholder="Nombre" class="input" />
-        <input v-model="form.Apellido_Paterno" placeholder="Apellido Paterno" class="input" />
-        <input v-model="form.Apellido_Materno" placeholder="Apellido Materno" class="input" />
-        <input v-model="form.Direccion" placeholder="Dirección" class="input" />
-        <input v-model="form.Telefono" placeholder="Teléfono" class="input" />
+        <input v-model="form.Nombre" placeholder="Nombre" class="input" required />
+        <input v-model="form.Apellido_Paterno" placeholder="Apellido Paterno" class="input" required />
+        <input v-model="form.Apellido_Materno" placeholder="Apellido Materno" class="input" required />
+        <input v-model="form.Direccion" placeholder="Dirección" class="input" required />
+        <input v-model="form.Telefono" placeholder="Teléfono" class="input" required />
 
         <div class="flex justify-end gap-2">
           <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded" @click="$emit('close')">Cancelar</button>

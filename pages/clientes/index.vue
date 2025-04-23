@@ -3,15 +3,21 @@ import Page from '~/components/Page.vue'
 import Breadcrumb from '~/components/ui/Breadcrumb.vue'
 import Table from '~/components/ui/Table.vue'
 import ClienteForm from '~/components/clientes/ClienteForm.vue'
-import { ref } from 'vue'
-
-const clientes = ref([
-  { idCliente: 1, Nombre: 'Juan', Apellido_Paterno: 'Pérez', Apellido_Materno: 'Gómez', Direccion: 'Av. Siempre Viva 123', Telefono: '555-1234' },
-  { idCliente: 2, Nombre: 'María', Apellido_Paterno: 'López', Apellido_Materno: 'Martínez', Direccion: 'Calle Falsa 456', Telefono: '555-5678' },
-])
+import { ref, watch } from 'vue'
+import { useQuery } from '@vue/apollo-composable'
+import GetClientes from '~/api/clientes/getClientes.gql'
 
 const showModal = ref(false)
 const clienteSeleccionado = ref(null)
+const clientes = ref([])
+
+const { result, refetch } = useQuery(GetClientes)
+
+watch(result, () => {
+  if (result.value?.clientes) {
+    clientes.value = result.value.clientes
+  }
+}, { immediate: true })
 
 function agregarCliente() {
   clienteSeleccionado.value = null
@@ -21,6 +27,11 @@ function agregarCliente() {
 function editarCliente(cliente: any) {
   clienteSeleccionado.value = { ...cliente }
   showModal.value = true
+}
+
+function cerrarModal() {
+  showModal.value = false
+  refetch()
 }
 </script>
 
@@ -40,14 +51,14 @@ function editarCliente(cliente: any) {
     <Table
       :columns="['Nombre', 'Apellidos', 'Dirección', 'Teléfono', 'Acciones']"
       :rows="clientes.map(c => [
-        c.Nombre,
-        `${c.Apellido_Paterno} ${c.Apellido_Materno}`,
-        c.Direccion,
-        c.Telefono,
+        c.nombre,
+        `${c.apellidoPaterno} ${c.apellidoMaterno}`,
+        c.direccion,
+        c.telefono,
         { type: 'button', label: 'Editar', action: () => editarCliente(c) }
       ])"
     />
 
-    <ClienteForm v-if="showModal" :cliente="clienteSeleccionado" @close="showModal = false" />
+    <ClienteForm v-if="showModal" :cliente="clienteSeleccionado" @close="cerrarModal" />
   </Page>
 </template>

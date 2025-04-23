@@ -1,0 +1,28 @@
+mutation CrearEmpleadoConUsuario(
+  $nombreEmpleado: String!
+  $apellidoPaterno: String!
+  $apellidoMaterno: String!
+  $sueldo: Float!
+  $turno: String!
+  $cargo: String!
+  $nombreUsuario: String!
+  $contrasena: String!
+  $rol: String!
+) {
+  usuario {
+    crearEmpleadoConUsuario(
+      nombreEmpleado: $nombreEmpleado
+      apellidoPaterno: $apellidoPaterno
+      apellidoMaterno: $apellidoMaterno
+      sueldo: $sueldo
+      turno: $turno
+      cargo: $cargo
+      nombreUsuario: $nombreUsuario
+      contrasena: $contrasena
+      rol: $rol
+    ) {
+      exito
+      mensaje
+    }
+  }
+}
