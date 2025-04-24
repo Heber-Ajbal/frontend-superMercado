@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Breadcrumb from '~/components/ui/Breadcrumb.vue'
 import Page from '~/components/Page.vue'
-import { faUsers, faBox, faCashRegister, faShoppingCart, faWarehouse, faUserTie,faUserShield } from '@fortawesome/free-solid-svg-icons'
+import { faUsers, faBox, faCashRegister, faShoppingCart, faWarehouse, faUserTie,faUserShield,faTruck } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 const modules = [
@@ -12,6 +12,8 @@ const modules = [
   { label: 'Compras', icon: faShoppingCart, to: '/compras' },
   { label: 'Inventario', icon: faWarehouse, to: '/inventario' },
   { label: 'Usuarios', icon: faUserShield, to: '/usuarios' },
+  { label: 'Proveedores', icon: faTruck, to: '/proveedores' },
+
 ]
 </script>
 

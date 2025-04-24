@@ -2,37 +2,30 @@
 import Page from '~/components/Page.vue'
 import Breadcrumb from '~/components/ui/Breadcrumb.vue'
 import CompraForm from '~/components/compras/CompraForm.vue'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useQuery } from '@vue/apollo-composable'
+import GetCompras from '~/api/compras/getCompras.gql'
 
 const showModal = ref(false)
-
-const compras = ref([
-  {
-    idCompra: 1,
-    Proveedor: 'Proveedor A',
-    Empleado: 'Carlos Ramírez',
-    Fecha: '2024-04-20',
-    TipoPago: 'Efectivo',
-    Monto: 150.75,
-    Detalle: [
-      { producto: 'Leche', cantidad: 10, precio: 5.5 },
-      { producto: 'Pan', cantidad: 5, precio: 3.5 }
-    ]
-  },
-  {
-    idCompra: 2,
-    Proveedor: 'Proveedor B',
-    Empleado: 'Ana Morales',
-    Fecha: '2024-04-19',
-    TipoPago: 'Transferencia',
-    Monto: 230.0,
-    Detalle: [
-      { producto: 'Jugo', cantidad: 20, precio: 4.5 }
-    ]
-  }
-])
-
 const compraExpandidaId = ref<number | null>(null)
+
+const { result, refetch } = useQuery(GetCompras)
+
+const compras = computed(() =>
+  (result.value?.compras || []).map(c => ({
+    idCompra: c.idCompra,
+    Proveedor: c.codProveedorNavigation?.nombre || 'Sin proveedor',
+    Empleado: `${c.idEmpleadoNavigation?.nombre} ${c.idEmpleadoNavigation?.apellidoPaterno}`,
+    Fecha: c.fecha,
+    TipoPago: c.tipoPago,
+    Monto: c.monto,
+    Detalle: c.detalleCompras.map(d => ({
+      producto: d.codProductoNavigation?.nombre || 'Desconocido',
+      cantidad: d.cantidad,
+      precio: d.precioProducto
+    }))
+  }))
+)
 
 function toggleDetalles(id: number) {
   compraExpandidaId.value = compraExpandidaId.value === id ? null : id
@@ -59,7 +52,6 @@ function agregarCompra() {
       </button>
     </div>
 
-    <!-- Corrección importante: items-start evita que el grid iguale alturas -->
     <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 items-start">
       <div
         v-for="compra in compras"
@@ -67,18 +59,10 @@ function agregarCompra() {
         class="flex flex-col justify-between rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-md hover:shadow-lg transition-all p-4"
       >
         <div class="mb-2">
-          <h3 class="text-lg font-bold text-gray-800 dark:text-white">
-            {{ compra.Proveedor }}
-          </h3>
-          <p class="text-sm text-gray-500 dark:text-gray-300">
-            Empleado: {{ compra.Empleado }}
-          </p>
-          <p class="text-sm text-gray-500 dark:text-gray-300">
-            Fecha: {{ compra.Fecha }}
-          </p>
-          <p class="text-sm text-gray-500 dark:text-gray-300">
-            Pago: {{ compra.TipoPago }}
-          </p>
+          <h3 class="text-lg font-bold text-gray-800 dark:text-white">{{ compra.Proveedor }}</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-300">Empleado: {{ compra.Empleado }}</p>
+          <p class="text-sm text-gray-500 dark:text-gray-300">Fecha: {{ compra.Fecha }}</p>
+          <p class="text-sm text-gray-500 dark:text-gray-300">Pago: {{ compra.TipoPago }}</p>
           <p class="text-sm text-gray-800 dark:text-white font-semibold mt-1">
             Total: ${{ compra.Monto.toFixed(2) }}
           </p>
@@ -91,7 +75,6 @@ function agregarCompra() {
           {{ compraExpandidaId === compra.idCompra ? 'Ocultar Detalles' : 'Ver Detalles' }}
         </button>
 
-        <!-- Detalle expandible solo en esta tarjeta -->
         <div
           v-show="compraExpandidaId === compra.idCompra"
           class="mt-3 border-t pt-2 text-sm text-gray-700 dark:text-white space-y-1"
@@ -111,6 +94,6 @@ function agregarCompra() {
       </div>
     </div>
 
-    <CompraForm v-if="showModal" @close="showModal = false" />
+    <CompraForm v-if="showModal" @close="showModal = false; refetch()" />
   </Page>
 </template>

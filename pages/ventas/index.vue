@@ -2,45 +2,35 @@
 import Page from '~/components/Page.vue'
 import Breadcrumb from '~/components/ui/Breadcrumb.vue'
 import VentaForm from '~/components/ventas/VentaForm.vue'
-import { ref } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { useQuery } from '@vue/apollo-composable'
+import GetVentas from '~/api/ventas/getVentas.gql'
 
 const showModal = ref(false)
-
-const ventas = ref([
-  {
-    idVenta: 1,
-    Cliente: 'Juan Pérez',
-    Empleado: 'Carlos Ramírez',
-    Fecha: '2024-04-20',
-    Hora: '10:30',
-    Monto: 75.5,
-    Detalle: [
-      { producto: 'Leche', cantidad: 2, precio: 5.5, descuento: 0 },
-      { producto: 'Pan', cantidad: 1, precio: 3.5, descuento: 1.0 }
-    ]
-  },
-  {
-    idVenta: 2,
-    Cliente: 'María López',
-    Empleado: 'Ana Morales',
-    Fecha: '2024-04-19',
-    Hora: '14:15',
-    Monto: 120.0,
-    Detalle: [
-      { producto: 'Jugo', cantidad: 4, precio: 4.5, descuento: 0 }
-    ]
-  }
-])
-
 const ventaExpandidaId = ref<number | null>(null)
 
-function toggleDetalles(id: number) {
-  ventaExpandidaId.value = ventaExpandidaId.value === id ? null : id
-}
+const { result, loading, error, refetch } = useQuery(GetVentas)
+const ventas = ref<any[]>([])
 
-function registrarVenta() {
-  showModal.value = true
-}
+// Asegura que se guarden las ventas cuando el query responde
+watch(result, () => {
+  if (result.value?.ventas) {
+    ventas.value = result.value.ventas.map(v => ({
+      idVenta: v.idVenta,
+      Cliente: `${v.idClienteNavigation?.nombre ?? 'Desconocido'} ${v.idClienteNavigation?.apellidoPaterno ?? ''}`,
+      Empleado: `${v.idEmpleadoNavigation?.nombre ?? 'Desconocido'} ${v.idEmpleadoNavigation?.apellidoPaterno ?? ''}`,
+      Fecha: v.fecha,
+      Hora: v.hora?.slice(0, 5),
+      Monto: v.monto,
+      Detalle: (v.detalleVenta || []).map(d => ({
+        producto: d.codProductoNavigation?.nombre ?? 'Producto desconocido',
+        cantidad: d.cantidad,
+        precio: d.codProductoNavigation?.precioVenta ?? 0,
+        descuento: d.descuento
+      }))
+    }))
+  }
+})
 </script>
 
 <template>
@@ -53,13 +43,24 @@ function registrarVenta() {
       <h2 class="text-2xl font-semibold">Ventas Registradas</h2>
       <button
         class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-        @click="registrarVenta"
+        @click="showModal = true"
       >
         Registrar Venta
       </button>
     </div>
 
-    <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 items-start">
+    <div v-if="loading" class="text-center text-gray-500 dark:text-gray-300">
+      Cargando ventas...
+    </div>
+
+    <div v-else-if="ventas.length === 0" class="text-center text-gray-500 dark:text-gray-300">
+      No hay ventas registradas.
+    </div>
+
+    <div
+      v-else
+      class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 items-start"
+    >
       <div
         v-for="venta in ventas"
         :key="venta.idVenta"
@@ -69,18 +70,20 @@ function registrarVenta() {
           <h3 class="text-lg font-bold text-gray-800 dark:text-white">
             {{ venta.Cliente }}
           </h3>
-          <p class="text-sm text-gray-500 dark:text-gray-300">Empleado: {{ venta.Empleado }}</p>
+          <p class="text-sm text-gray-500 dark:text-gray-300">
+            Empleado: {{ venta.Empleado }}
+          </p>
           <p class="text-sm text-gray-500 dark:text-gray-300">
             Fecha: {{ venta.Fecha }} {{ venta.Hora }}
           </p>
           <p class="text-sm text-gray-800 dark:text-white font-semibold mt-1">
-            Total: ${{ venta.Monto.toFixed(2) }}
+            Total: ${{ (venta.Monto ?? 0).toFixed(2) }}
           </p>
         </div>
 
         <button
           class="mt-2 text-blue-600 hover:underline text-sm self-start"
-          @click="toggleDetalles(venta.idVenta)"
+          @click="ventaExpandidaId = ventaExpandidaId === venta.idVenta ? null : venta.idVenta"
         >
           {{ ventaExpandidaId === venta.idVenta ? 'Ocultar Detalles' : 'Ver Detalles' }}
         </button>
@@ -92,8 +95,8 @@ function registrarVenta() {
           <p class="font-semibold">Productos:</p>
           <ul>
             <li
-              v-for="item in venta.Detalle"
-              :key="item.producto"
+              v-for="(item, i) in venta.Detalle"
+              :key="i"
               class="flex justify-between"
             >
               <span>{{ item.producto }} (x{{ item.cantidad }})</span>
@@ -106,7 +109,6 @@ function registrarVenta() {
       </div>
     </div>
 
-    <VentaForm v-if="showModal" @close="showModal = false" />
+    <VentaForm v-if="showModal" @close="showModal = false; refetch()" />
   </Page>
 </template>
-

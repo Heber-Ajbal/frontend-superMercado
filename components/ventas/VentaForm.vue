@@ -1,20 +1,27 @@
 <script setup lang="ts">
-import { defineEmits, ref } from 'vue'
+import { defineEmits, ref, computed } from 'vue'
+import { useQuery, useMutation } from '@vue/apollo-composable'
+import GetClientes from '~/api/clientes/getClientes.gql'
+import GetEmpleados from '~/api/empleados/getEmpleados.gql'
+import GetProductos from '~/api/productos/getProductos.gql'
+import CrearVenta from '~/api/ventas/crearVenta.gql'
 
 const emit = defineEmits(['close'])
 
-const clientes = ['Juan Pérez', 'María López']
-const empleados = ['Carlos Ramírez', 'Ana Morales']
-const productos = ['Leche', 'Pan', 'Jugo', 'Galletas']
+const { result: clientesResult } = useQuery(GetClientes)
+const { result: empleadosResult } = useQuery(GetEmpleados)
+const { result: productosResult } = useQuery(GetProductos)
+
+const clientes = computed(() => clientesResult.value?.clientes || [])
+const empleados = computed(() => empleadosResult.value?.empleados || [])
+const productos = computed(() => productosResult.value?.productos || [])
 
 const form = ref({
   Cliente: '',
   Empleado: '',
   Fecha: new Date().toISOString().slice(0, 10),
   Hora: new Date().toLocaleTimeString('en-GB').slice(0, 5),
-  Detalle: [
-    { producto: '', cantidad: 1, descuento: 0 }
-  ]
+  Detalle: [{ producto: '', cantidad: 1, descuento: 0 }]
 })
 
 function agregarProducto() {
@@ -27,13 +34,29 @@ function eliminarProducto(index: number) {
 
 const total = computed(() =>
   form.value.Detalle.reduce((acc, p) => {
-    const subtotal = p.cantidad * 10 // simula precio unitario fijo
+    const precio = productos.value.find(prod => prod.codProducto === p.producto)?.precioVenta || 0
+    const subtotal = p.cantidad * precio
     return acc + (subtotal - p.descuento)
   }, 0)
 )
 
-function guardar() {
-  // Aquí va la lógica final de envío
+const { mutate } = useMutation(CrearVenta)
+
+async function guardar() {
+  const payload = {
+    idCliente: form.value.Cliente,
+    idEmpleado: form.value.Empleado,
+    fecha: form.value.Fecha,
+    hora: form.value.Hora + ':00',
+    monto: total.value,
+    detalles: form.value.Detalle.map(d => ({
+      codProducto: d.producto,
+      cantidad: d.cantidad,
+      descuento: d.descuento
+    }))
+  }
+
+  await mutate({ input: payload })
   emit('close')
 }
 </script>
@@ -46,12 +69,16 @@ function guardar() {
       <form @submit.prevent="guardar" class="grid gap-4">
         <select v-model="form.Cliente" class="input" required>
           <option value="">Seleccionar Cliente</option>
-          <option v-for="c in clientes" :key="c" :value="c">{{ c }}</option>
+          <option v-for="c in clientes" :key="c.idCliente" :value="c.idCliente">
+            {{ c.nombre }} {{ c.apellidoPaterno }}
+          </option>
         </select>
 
         <select v-model="form.Empleado" class="input" required>
           <option value="">Empleado Responsable</option>
-          <option v-for="e in empleados" :key="e" :value="e">{{ e }}</option>
+          <option v-for="e in empleados" :key="e.idEmpleado" :value="e.idEmpleado">
+            {{ e.nombre }} {{ e.apellidoPaterno }}
+          </option>
         </select>
 
         <input type="date" v-model="form.Fecha" class="input" />
@@ -67,7 +94,9 @@ function guardar() {
           >
             <select v-model="prod.producto" class="input col-span-2" required>
               <option value="">Producto</option>
-              <option v-for="p in productos" :key="p" :value="p">{{ p }}</option>
+              <option v-for="p in productos" :key="p.codProducto" :value="p.codProducto">
+                {{ p.nombre }}
+              </option>
             </select>
             <input type="number" v-model.number="prod.cantidad" min="1" class="input" placeholder="Cantidad" />
             <input type="number" v-model.number="prod.descuento" min="0" class="input" placeholder="Descuento" />

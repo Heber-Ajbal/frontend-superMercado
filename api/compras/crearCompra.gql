@@ -1,0 +1,26 @@
+mutation CrearCompra($input: CompraInput!) {
+  compra {
+    crearCompra(input: $input) {
+      idCompra
+      monto
+      fecha
+    }
+  }
+}
+
+
+
+input DetalleCompraInput {
+  codProducto: Int!
+  cantidad: Int!
+  precioProducto: Decimal!
+}
+
+input CompraInput {
+  codProveedor: Int!
+  idEmpleado: Int!
+  fecha: Date!
+  tipoPago: String!
+  monto: Decimal!
+  detalleCompras: [DetalleCompraInput!]!
+}

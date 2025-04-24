@@ -1,0 +1,14 @@
+mutation CrearProveedor($nombre: String!, $ubicacion: String!, $telefono: String!) {
+  proveedor {
+    crearProveedor(input: {
+      nombre: $nombre,
+      ubicacion: $ubicacion,
+      telefono: $telefono
+    }) {
+      codProveedor
+      nombre
+      ubicacion
+      telefono
+    }
+  }
+}

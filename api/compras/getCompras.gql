@@ -1,0 +1,22 @@
+query {
+  compras {
+    idCompra
+    fecha
+    tipoPago
+    monto
+    codProveedorNavigation {
+      nombre
+    }
+    idEmpleadoNavigation {
+      nombre
+      apellidoPaterno
+    }
+    detalleCompras {
+      cantidad
+      precioProducto
+      codProductoNavigation {
+        nombre
+      }
+    }
+  }
+}

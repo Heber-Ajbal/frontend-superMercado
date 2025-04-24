@@ -1,0 +1,10 @@
+mutation CrearVenta($input: VentaCInput!) {
+  venta {
+    crearVenta(input: $input) {
+      idVenta
+      fecha
+      hora
+      monto
+    }
+  }
+}
