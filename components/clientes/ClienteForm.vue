@@ -53,11 +53,42 @@ async function guardar() {
       <h3 class="text-xl font-bold mb-4">{{ props.cliente ? 'Editar Cliente' : 'Agregar Cliente' }}</h3>
 
       <form @submit.prevent="guardar" class="grid gap-4">
-        <input v-model="form.Nombre" placeholder="Nombre" class="input" required />
-        <input v-model="form.Apellido_Paterno" placeholder="Apellido Paterno" class="input" required />
-        <input v-model="form.Apellido_Materno" placeholder="Apellido Materno" class="input" required />
-        <input v-model="form.Direccion" placeholder="Dirección" class="input" required />
-        <input v-model="form.Telefono" placeholder="Teléfono" class="input" required />
+       
+
+
+        <div class="flex items-center gap-4">
+          <label class="w-32 font-medium text-gray-700 dark:text-white">Nombre: </label>
+          <input v-model="form.Nombre" placeholder="Nombre" class="input" required />
+        </div>
+
+
+       
+
+        <div class="flex items-center gap-4">
+          <label class="w-32 font-medium text-gray-700 dark:text-white">Primer Apellido: </label>
+          <input v-model="form.Apellido_Paterno" placeholder="Primer Apellido" class="input" required />
+        </div>
+
+
+        
+
+        <div class="flex items-center gap-4">
+          <label class="w-32 font-medium text-gray-700 dark:text-white">Segundo Apellido: </label>
+          <input v-model="form.Apellido_Materno" placeholder="Segundo Apellido" class="input" required />
+        </div>
+
+        
+        <div class="flex items-center gap-4">
+          <label class="w-32 font-medium text-gray-700 dark:text-white">Direccion: </label>
+          <input v-model="form.Direccion" placeholder="Dirección" class="input" required />
+        </div>
+        
+
+        <div class="flex items-center gap-4">
+          <label class="w-32 font-medium text-gray-700 dark:text-white">Telefono: </label>
+          <input v-model="form.Telefono" placeholder="Teléfono" class="input" required />
+        </div>
+        
 
         <div class="flex justify-end gap-2">
           <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded" @click="$emit('close')">Cancelar</button>
