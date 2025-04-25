@@ -68,7 +68,7 @@ function cerrarModal() {
           </p>
         </div>
         <div class="flex justify-between items-center mt-auto">
-          <span class="text-green-600 font-semibold text-md">${{ p.precioVenta.toFixed(2) }}</span>
+          <span class="text-green-600 font-semibold text-md">Q{{ p.precioVenta.toFixed(2) }}</span>
           <button
             class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"
             @click="editarProducto(p)"

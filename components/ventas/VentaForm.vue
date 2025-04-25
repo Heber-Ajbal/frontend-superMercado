@@ -177,7 +177,7 @@ async function guardar() {
         </div>
 
         <!-- Total -->
-        <p class="text-right font-bold text-lg mt-2">Total: ${{ total.toFixed(2) }}</p>
+        <p class="text-right font-bold text-lg mt-2">Total: Q{{ total.toFixed(2) }}</p>
 
         <!-- Acciones -->
         <div class="flex justify-end gap-2 mt-4">
