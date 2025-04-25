@@ -109,6 +109,8 @@ watch(result, () => {
       </div>
     </div>
 
-    <VentaForm v-if="showModal" @close="showModal = false; refetch()" />
+    <VentaForm :visible="showModal" @close="showModal = false; refetch()" />
+
+
   </Page>
 </template>

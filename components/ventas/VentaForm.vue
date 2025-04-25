@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { defineEmits, ref, computed } from 'vue'
+import { defineProps, defineEmits, ref, computed, watch } from 'vue'
 import { useQuery, useMutation } from '@vue/apollo-composable'
-
 import GetClientes from '~/api/clientes/getClientes.gql'
 import GetEmpleados from '~/api/empleados/getEmpleados.gql'
 import GetProductos from '~/api/productos/getProductos.gql'
 import CrearVenta from '~/api/ventas/crearVenta.gql'
 
+const props = defineProps<{ visible: boolean }>()
 const emit = defineEmits(['close'])
 
+// Queries (no lazy)
 const { result: clientesResult } = useQuery(GetClientes)
 const { result: empleadosResult } = useQuery(GetEmpleados)
 const { result: productosResult } = useQuery(GetProductos)
@@ -63,14 +64,12 @@ async function guardar() {
 </script>
 
 <template>
-  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
+  <div v-show="props.visible"  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
     <div class="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-2xl shadow-xl">
       <h3 class="text-xl font-bold mb-4">Registrar Venta</h3>
 
       <form @submit.prevent="guardar" class="grid gap-4">
-              
-                
-                <!-- Cliente y Empleado (con etiquetas alineadas) -->
+        <!-- Cliente y Empleado -->
         <div class="flex gap-4">
           <div class="flex-1">
             <label class="block text-sm font-medium mb-1">Nombre del Cliente:</label>
@@ -92,7 +91,6 @@ async function guardar() {
             </select>
           </div>
         </div>
-
 
         <!-- Fecha y Hora -->
         <div class="flex gap-4">
@@ -122,33 +120,29 @@ async function guardar() {
             </select>
 
             <div class="flex gap-4">
-          <div class="flex-1">
-            <label class="block text-sm font-medium mb-1">Cantidad:</label>
-            <input
-              type="number"
-              v-model.number="prod.cantidad"
-              min="1"
-              class="input w-[100px]"
-              placeholder="Cantidad"
-              required
-            />
-          </div>
+              <div class="flex-1">
+                <label class="block text-sm font-medium mb-1">Cantidad:</label>
+                <input
+                  type="number"
+                  v-model.number="prod.cantidad"
+                  min="1"
+                  class="input w-[100px]"
+                  placeholder="Cantidad"
+                  required
+                />
+              </div>
 
-            
-
-            <div class="flex-1">
-            <label class="block text-sm font-medium mb-1">Descuento:</label>
-            <input
-              type="number"
-              v-model.number="prod.descuento"
-              min="0"
-              class="input w-[100px]"
-              placeholder="Descuento"
-            />
-          </div>
-        </div>
-
-            
+              <div class="flex-1">
+                <label class="block text-sm font-medium mb-1">Descuento:</label>
+                <input
+                  type="number"
+                  v-model.number="prod.descuento"
+                  min="0"
+                  class="input w-[100px]"
+                  placeholder="Descuento"
+                />
+              </div>
+            </div>
 
             <button
               v-if="form.Detalle.length > 1"

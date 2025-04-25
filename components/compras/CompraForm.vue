@@ -39,19 +39,19 @@ const total = computed(() =>
 async function guardar() {
   try {
     await mutate({
-      input: {
-        codProveedor: parseInt(form.value.codProveedor),
-        idEmpleado: parseInt(form.value.idEmpleado),
-        fecha: form.value.fecha,
-        tipoPago: form.value.tipoPago,
-        monto: total.value,
-        detalleCompras: form.value.productos.map(p => ({
-          codProducto: parseInt(p.codProducto),
-          cantidad: p.cantidad,
-          precioProducto: p.precioProducto
-        }))
-      }
-    })
+  input: {
+    codProveedor: parseInt(form.value.codProveedor),
+    idEmpleado: parseInt(form.value.idEmpleado),
+    fecha: form.value.fecha,
+    tipoPago: form.value.tipoPago,
+    monto: total.value,
+    detalleCompras: form.value.productos.map(p => ({
+      codProducto: parseInt(p.codProducto),
+      cantidad: p.cantidad,
+      precioProducto: p.precioProducto
+    }))
+  }
+})
     emit('close')
   } catch (e) {
     console.error('Error al guardar compra:', e)
