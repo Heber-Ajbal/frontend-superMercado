@@ -21,7 +21,7 @@ const form = ref({
   rol: 'Cajero'
 })
 
-const { mutate, onDone, onError } = useMutation(CrearEmpleadoConUsuario)
+const { mutate } = useMutation(CrearEmpleadoConUsuario)
 
 async function guardar() {
   try {
@@ -52,24 +52,55 @@ async function guardar() {
       <form @submit.prevent="guardar" class="grid gap-4">
         <!-- Datos del empleado -->
         <div class="grid gap-2">
-          <input v-model="form.nombre" placeholder="Nombre del empleado" class="input" required />
-          <input v-model="form.apellidoPaterno" placeholder="Apellido paterno" class="input" required />
-          <input v-model="form.apellidoMaterno" placeholder="Apellido materno" class="input" required />
-          <input v-model.number="form.sueldo" type="number" min="0" step="0.01" placeholder="Sueldo" class="input" required />
-          <select v-model="form.turno" class="input">
-            <option v-for="t in turnos" :key="t" :value="t">{{ t }}</option>
-          </select>
+          <div class="flex items-center gap-4">
+            <label class="w-40 font-medium text-gray-700 dark:text-white">Nombre del empleado:</label>
+            <input v-model="form.nombre" placeholder="Nombre del empleado" class="input" required />
+          </div>
+
+          <div class="flex items-center gap-4">
+            <label class="w-40 font-medium text-gray-700 dark:text-white">Primer Apellido:</label>
+            <input v-model="form.apellidoPaterno" placeholder="Primer Apellido" class="input" required />
+          </div>
+
+          <div class="flex items-center gap-4">
+            <label class="w-40 font-medium text-gray-700 dark:text-white">Segundo Apellido:</label>
+            <input v-model="form.apellidoMaterno" placeholder="Segundo Apellido" class="input" required />
+          </div>
+
+          <div class="flex items-center gap-4">
+            <label class="w-40 font-medium text-gray-700 dark:text-white">Sueldo:</label>
+            <input v-model.number="form.sueldo" type="number" min="0" step="0.01" placeholder="Sueldo" class="input" required />
+          </div>
+
+          <div class="flex items-center gap-4">
+            <label class="w-40 font-medium text-gray-700 dark:text-white">Jornada:</label>
+            <select v-model="form.turno" class="input">
+              <option v-for="t in turnos" :key="t" :value="t">{{ t }}</option>
+            </select>
+          </div>
         </div>
 
         <!-- Datos del usuario -->
         <div class="grid gap-2 border-t pt-4 mt-4">
-          <input v-model="form.nombreUsuario" placeholder="Nombre de Usuario" class="input" required />
-          <input v-model="form.contrasena" type="password" placeholder="Contraseña" class="input" required />
-          <select v-model="form.rol" class="input">
-            <option v-for="r in roles" :key="r" :value="r">{{ r }}</option>
-          </select>
+          <div class="flex items-center gap-4">
+            <label class="w-40 font-medium text-gray-700 dark:text-white">Nombre de Usuario:</label>
+            <input v-model="form.nombreUsuario" placeholder="Nombre de Usuario" class="input" required />
+          </div>
+
+          <div class="flex items-center gap-4">
+            <label class="w-40 font-medium text-gray-700 dark:text-white">Contraseña:</label>
+            <input v-model="form.contrasena" type="password" placeholder="Contraseña" class="input" required />
+          </div>
+
+          <div class="flex items-center gap-4">
+            <label class="w-40 font-medium text-gray-700 dark:text-white">Puesto:</label>
+            <select v-model="form.rol" class="input">
+              <option v-for="r in roles" :key="r" :value="r">{{ r }}</option>
+            </select>
+          </div>
         </div>
 
+        <!-- Botones -->
         <div class="flex justify-end gap-2">
           <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded" @click="$emit('close')">Cancelar</button>
           <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Guardar</button>
@@ -81,6 +112,6 @@ async function guardar() {
 
 <style scoped>
 .input {
-  @apply w-full px-3 py-2 border border-gray-300 rounded;
+  @apply w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring focus:border-blue-300;
 }
 </style>

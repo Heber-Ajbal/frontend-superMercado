@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { defineEmits, ref, computed } from 'vue'
 import { useQuery, useMutation } from '@vue/apollo-composable'
+
 import GetClientes from '~/api/clientes/getClientes.gql'
 import GetEmpleados from '~/api/empleados/getEmpleados.gql'
 import GetProductos from '~/api/productos/getProductos.gql'
@@ -12,9 +13,9 @@ const { result: clientesResult } = useQuery(GetClientes)
 const { result: empleadosResult } = useQuery(GetEmpleados)
 const { result: productosResult } = useQuery(GetProductos)
 
-const clientes = computed(() => clientesResult.value?.clientes || [])
-const empleados = computed(() => empleadosResult.value?.empleados || [])
-const productos = computed(() => productosResult.value?.productos || [])
+const clientes = computed(() => clientesResult.value?.clientes ?? [])
+const empleados = computed(() => empleadosResult.value?.empleados ?? [])
+const productos = computed(() => productosResult.value?.productos ?? [])
 
 const form = ref({
   Cliente: '',
@@ -33,10 +34,10 @@ function eliminarProducto(index: number) {
 }
 
 const total = computed(() =>
-  form.value.Detalle.reduce((acc, p) => {
-    const precio = productos.value.find(prod => prod.codProducto === p.producto)?.precioVenta || 0
-    const subtotal = p.cantidad * precio
-    return acc + (subtotal - p.descuento)
+  form.value.Detalle.reduce((acc, item) => {
+    const prod = productos.value.find(p => p.codProducto === item.producto)
+    const precio = prod?.precioVenta ?? 0
+    return acc + (item.cantidad * precio - item.descuento)
   }, 0)
 )
 
@@ -49,10 +50,10 @@ async function guardar() {
     fecha: form.value.Fecha,
     hora: form.value.Hora + ':00',
     monto: total.value,
-    detalles: form.value.Detalle.map(d => ({
-      codProducto: d.producto,
-      cantidad: d.cantidad,
-      descuento: d.descuento
+    detalles: form.value.Detalle.map(({ producto, cantidad, descuento }) => ({
+      codProducto: producto,
+      cantidad,
+      descuento
     }))
   }
 
@@ -67,63 +68,108 @@ async function guardar() {
       <h3 class="text-xl font-bold mb-4">Registrar Venta</h3>
 
       <form @submit.prevent="guardar" class="grid gap-4">
-        <select v-model="form.Cliente" class="input" required>
-          <option value="">Seleccionar Cliente</option>
-          <option v-for="c in clientes" :key="c.idCliente" :value="c.idCliente">
-            {{ c.nombre }} {{ c.apellidoPaterno }}
-          </option>
-        </select>
+              
+                
+                <!-- Cliente y Empleado (con etiquetas alineadas) -->
+        <div class="flex gap-4">
+          <div class="flex-1">
+            <label class="block text-sm font-medium mb-1">Nombre del Cliente:</label>
+            <select v-model="form.Cliente" class="input" required>
+              <option value="">Seleccionar Cliente</option>
+              <option v-for="c in clientes" :key="c.idCliente" :value="c.idCliente">
+                {{ c.nombre }} {{ c.apellidoPaterno }}
+              </option>
+            </select>
+          </div>
 
-        <select v-model="form.Empleado" class="input" required>
-          <option value="">Empleado Responsable</option>
-          <option v-for="e in empleados" :key="e.idEmpleado" :value="e.idEmpleado">
-            {{ e.nombre }} {{ e.apellidoPaterno }}
-          </option>
-        </select>
+          <div class="flex-1">
+            <label class="block text-sm font-medium mb-1">Nombre del Empleado:</label>
+            <select v-model="form.Empleado" class="input" required>
+              <option value="">Seleccionar Empleado</option>
+              <option v-for="e in empleados" :key="e.idEmpleado" :value="e.idEmpleado">
+                {{ e.nombre }} {{ e.apellidoPaterno }}
+              </option>
+            </select>
+          </div>
+        </div>
 
-        <input type="date" v-model="form.Fecha" class="input" />
-        <input type="time" v-model="form.Hora" class="input" />
 
-        <div class="border rounded p-3">
-          <h4 class="text-md font-bold mb-2">Productos</h4>
+        <!-- Fecha y Hora -->
+        <div class="flex gap-4">
+          <div class="flex-1">
+            <label class="block text-sm font-medium mb-1">Fecha:</label>
+            <input type="date" v-model="form.Fecha" class="input" required />
+          </div>
+          <div class="flex-1">
+            <label class="block text-sm font-medium mb-1">Hora:</label>
+            <input type="time" v-model="form.Hora" class="input" required />
+          </div>
+        </div>
 
+        <!-- Productos -->
+        <div class="border rounded p-4">
+          <h4 class="text-md font-bold mb-3">Productos</h4>
           <div
             v-for="(prod, index) in form.Detalle"
             :key="index"
-            class="grid grid-cols-4 gap-2 mb-2"
+            class="flex flex-wrap gap-2 mb-4"
           >
-            <select v-model="prod.producto" class="input col-span-2" required>
+            <select v-model="prod.producto" class="input flex-grow min-w-[180px]" required>
               <option value="">Producto</option>
               <option v-for="p in productos" :key="p.codProducto" :value="p.codProducto">
                 {{ p.nombre }}
               </option>
             </select>
-            <input type="number" v-model.number="prod.cantidad" min="1" class="input" placeholder="Cantidad" />
-            <input type="number" v-model.number="prod.descuento" min="0" class="input" placeholder="Descuento" />
+
+            <div class="flex gap-4">
+          <div class="flex-1">
+            <label class="block text-sm font-medium mb-1">Cantidad:</label>
+            <input
+              type="number"
+              v-model.number="prod.cantidad"
+              min="1"
+              class="input w-[100px]"
+              placeholder="Cantidad"
+              required
+            />
+          </div>
+
+            
+
+            <div class="flex-1">
+            <label class="block text-sm font-medium mb-1">Descuento:</label>
+            <input
+              type="number"
+              v-model.number="prod.descuento"
+              min="0"
+              class="input w-[100px]"
+              placeholder="Descuento"
+            />
+          </div>
+        </div>
+
+            
+
             <button
-              type="button"
-              class="text-red-600 hover:text-red-800 col-span-4 text-left text-sm mt-1"
-              @click="eliminarProducto(index)"
               v-if="form.Detalle.length > 1"
+              type="button"
+              class="text-red-600 text-sm hover:underline w-full"
+              @click="eliminarProducto(index)"
             >
-              Quitar
+              Quitar producto
             </button>
           </div>
 
-          <button
-            type="button"
-            class="text-blue-600 hover:text-blue-800 text-sm mt-2"
-            @click="agregarProducto"
-          >
+          <button type="button" class="text-blue-600 text-sm hover:underline" @click="agregarProducto">
             + Agregar producto
           </button>
         </div>
 
-        <p class="text-right font-bold text-lg">
-          Total: ${{ total.toFixed(2) }}
-        </p>
+        <!-- Total -->
+        <p class="text-right font-bold text-lg mt-2">Total: ${{ total.toFixed(2) }}</p>
 
-        <div class="flex justify-end gap-2">
+        <!-- Acciones -->
+        <div class="flex justify-end gap-2 mt-4">
           <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded" @click="$emit('close')">
             Cancelar
           </button>
@@ -138,6 +184,6 @@ async function guardar() {
 
 <style scoped>
 .input {
-  @apply w-full px-3 py-2 border border-gray-300 rounded;
+  @apply w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring focus:border-blue-300;
 }
 </style>

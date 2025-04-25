@@ -44,16 +44,38 @@ function guardar() {
       <h3 class="text-xl font-bold mb-4">{{ props.registro ? 'Editar Movimiento' : 'Nuevo Movimiento' }}</h3>
 
       <form @submit.prevent="guardar" class="grid gap-4">
-        <input v-model="form.Producto" placeholder="Nombre del Producto" class="input" />
-        <input v-model.number="form.Cantidad" type="number" placeholder="Cantidad" class="input" />
+        <div class="flex flex-wrap gap-4">
+                    
+            <!-- Nombre del producto -->
+            <div class="flex-1 min-w-[200px]">
+              <label class="block text-sm font-medium mb-1">Nombre del Producto:</label>
+              <input v-model="form.Producto" placeholder="Nombre del Producto" class="input" />
+            </div>
 
-        <select v-model="form.Ubicacion" class="input">
-          <option v-for="u in ubicaciones" :key="u" :value="u">{{ u }}</option>
-        </select>
+            <!-- Cantidad -->
+            <div class="flex-1 min-w-[120px]">
+              <label class="block text-sm font-medium mb-1">Cantidad:</label>
+              <input v-model.number="form.Cantidad" type="number" placeholder="Cantidad" class="input" />
+            </div>
 
-        <select v-if="form.Ubicacion === 'Almacen'" v-model="form.Almacen" class="input">
-          <option v-for="a in almacenes" :key="a" :value="a">{{ a }}</option>
-        </select>
+            <!-- Ubicación -->
+            <div class="flex-1 min-w-[160px]">
+              <label class="block text-sm font-medium mb-1">Ubicación:</label>
+              <select v-model="form.Ubicacion" class="input">
+                <option v-for="u in ubicaciones" :key="u" :value="u">{{ u }}</option>
+              </select>
+            </div>
+
+            <!-- Almacén (solo si se selecciona "Almacen" como ubicación) -->
+            <div v-if="form.Ubicacion === 'Almacen'" class="flex-1 min-w-[160px]">
+              <label class="block text-sm font-medium mb-1">Almacén:</label>
+              <select v-model="form.Almacen" class="input">
+                <option v-for="a in almacenes" :key="a" :value="a">{{ a }}</option>
+              </select>
+            </div>
+          </div>
+
+                  
 
         <div class="flex justify-end gap-2">
           <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded" @click="$emit('close')">Cancelar</button>

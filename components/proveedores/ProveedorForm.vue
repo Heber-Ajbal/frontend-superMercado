@@ -42,9 +42,23 @@ async function guardar() {
       <h3 class="text-xl font-bold mb-4">Registrar Proveedor</h3>
 
       <form @submit.prevent="guardar" class="grid gap-4">
-        <input v-model="form.nombre" placeholder="Nombre" class="input" required />
-        <input v-model="form.ubicacion" placeholder="Ubicación" class="input" required />
-        <input v-model="form.telefono" placeholder="Teléfono" class="input" required />
+
+         <div class="flex items-center gap-4">
+            <label class="w-40 font-medium text-gray-700 dark:text-white">Nombre:</label>
+            <input v-model="form.nombre" placeholder="Nombre" class="input" required />
+          </div>
+
+          <div class="flex items-center gap-4">
+            <label class="w-40 font-medium text-gray-700 dark:text-white">Ubicación:</label>
+            <input v-model="form.ubicacion" placeholder="Ubicación" class="input" required />
+          </div>
+
+          <div class="flex items-center gap-4">
+            <label class="w-40 font-medium text-gray-700 dark:text-white">Teléfono:</label>
+            <input v-model="form.telefono" placeholder="Teléfono" class="input" required />
+          </div>
+       
+        
 
         <div class="flex justify-end gap-2">
           <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded" @click="$emit('close')">

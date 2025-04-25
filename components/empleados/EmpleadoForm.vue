@@ -56,22 +56,49 @@ async function guardar() {
       <h3 class="text-xl font-bold mb-4">{{ props.empleado ? 'Editar Empleado' : 'Agregar Empleado' }}</h3>
 
       <form @submit.prevent="guardar" class="grid gap-4">
-        <input v-model="form.nombre" placeholder="Nombre" class="input" required />
-        <input v-model="form.apellidoPaterno" placeholder="Apellido Paterno" class="input" required />
-        <input v-model="form.apellidoMaterno" placeholder="Apellido Materno" class="input" required />
-        <input v-model.number="form.sueldo" type="number" placeholder="Sueldo" class="input" required />
 
-        <select v-model="form.turno" class="input">
+        <div class="flex items-center gap-4">
+          <label class="w-32 font-medium text-gray-700 dark:text-white">Nombre: </label>
+          <input v-model="form.nombre" placeholder="Nombre" class="input" required />
+        </div>
+
+        <div class="flex items-center gap-4">
+          <label class="w-32 font-medium text-gray-700 dark:text-white">Primer Apellido: </label>
+          <input v-model="form.apellidoPaterno" placeholder="Primer Apellido" class="input" required />
+        </div>
+
+        <div class="flex items-center gap-4">
+          <label class="w-32 font-medium text-gray-700 dark:text-white">Segundo Apellido: </label>
+          <input v-model="form.apellidoMaterno" placeholder="Segundo Apellido" class="input" required />
+        </div>
+        
+        <div class="flex items-center gap-4">
+          <label class="w-32 font-medium text-gray-700 dark:text-white">Sueldo: </label>
+          <input v-model.number="form.sueldo" type="number" placeholder="Sueldo" class="input" required />
+        </div>
+
+        
+
+        <div class="flex items-center gap-4">
+          <label class="w-32 font-medium text-gray-700 dark:text-white">Jornada: </label>
+          <select v-model="form.turno" class="input">
           <option value="Mañana">Mañana</option>
           <option value="Tarde">Tarde</option>
           <option value="Noche">Noche</option>
         </select>
+        </div>
 
-        <select v-model="form.cargo" class="input">
+        
+        <div class="flex items-center gap-4">
+          <label class="w-32 font-medium text-gray-700 dark:text-white">Puesto: </label>
+          <select v-model="form.cargo" class="input">
           <option value="Cajero">Cajero</option>
           <option value="Encargado de Almacén">Encargado de Almacén</option>
           <option value="Supervisor">Supervisor</option>
         </select>
+        </div>
+
+        
 
         <div class="flex justify-end gap-2">
           <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded" @click="$emit('close')">Cancelar</button>
