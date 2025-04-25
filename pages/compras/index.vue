@@ -64,7 +64,7 @@ function agregarCompra() {
           <p class="text-sm text-gray-500 dark:text-gray-300">Fecha: {{ compra.Fecha }}</p>
           <p class="text-sm text-gray-500 dark:text-gray-300">Pago: {{ compra.TipoPago }}</p>
           <p class="text-sm text-gray-800 dark:text-white font-semibold mt-1">
-            Total: ${{ compra.Monto.toFixed(2) }}
+            Total: Q{{ compra.Monto.toFixed(2) }}
           </p>
         </div>
 

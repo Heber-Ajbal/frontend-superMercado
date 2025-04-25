@@ -81,7 +81,7 @@ function generarFactura(venta: any) {
             Fecha: {{ venta.Fecha }} {{ venta.Hora }}
           </p>
           <p class="text-sm text-gray-800 dark:text-white font-semibold mt-1">
-            Total: ${{ (venta.Monto ?? 0).toFixed(2) }}
+            Total: Q{{ (venta.Monto ?? 0).toFixed(2) }}
           </p>
         </div>
 
@@ -115,11 +115,11 @@ function generarFactura(venta: any) {
               <div class="flex justify-between">
                 <span>{{ item.producto }} (x{{ item.cantidad }})</span>
                 <span>
-                  Total: ${{ (item.precio * item.cantidad - item.descuento).toFixed(2) }}
+                  Total: Q{{ (item.precio * item.cantidad - item.descuento).toFixed(2) }}
                 </span>
               </div>
               <div class="text-sm text-gray-500">
-                Precio unitario: ${{ item.precio.toFixed(2) }}
+                Precio unitario: Q{{ item.precio.toFixed(2) }}
               </div>
             </li>
           </ul>

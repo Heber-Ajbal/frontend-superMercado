@@ -119,7 +119,7 @@ async function guardar() {
         <div class="border rounded p-4">
           <div class="flex justify-between items-center mb-3">
             <h4 class="text-md font-bold">Productos</h4>
-            <button type="button" @click="abrirProductoForm" class="text-blue-600 hover:underline text-sm">+ Nuevo Producto</button>
+            <button type="button" @click="abrirProductoForm" class="text-blue-600 hover:underline text-sm"> Nuevo Producto</button>
           </div>
           <div v-for="(prod, index) in form.productos" :key="index" class="flex flex-wrap gap-2 mb-4">
             <select v-model="prod.codProducto" class="input flex-grow min-w-[180px]" required>
@@ -152,7 +152,9 @@ async function guardar() {
         </div>
 
         <!-- Total -->
-        <p class="text-right font-bold text-lg mt-2">Total: ${{ total.toFixed(2) }}</p>
+        <label class="block text-sm font-medium mb-1">Precio (Q):</label>
+
+        <p class="text-right font-bold text-lg mt-2">Total: Q{{ total.toFixed(2) }}</p>
 
         <!-- Acciones -->
         <div class="flex justify-end gap-2 mt-4">
