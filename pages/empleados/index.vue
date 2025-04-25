@@ -3,15 +3,28 @@ import Page from '~/components/Page.vue'
 import Breadcrumb from '~/components/ui/Breadcrumb.vue'
 import Table from '~/components/ui/Table.vue'
 import EmpleadoForm from '~/components/empleados/EmpleadoForm.vue'
-import { ref } from 'vue'
-
-const empleados = ref([
-  { idEmpleado: 1, Nombre: 'Carlos', Apellido_Paterno: 'Ramírez', Apellido_Materno: 'García', Sueldo: 5000, Turno: 'Mañana', Cargo: 'Cajero' },
-  { idEmpleado: 2, Nombre: 'Ana', Apellido_Paterno: 'Morales', Apellido_Materno: 'López', Sueldo: 6000, Turno: 'Tarde', Cargo: 'Supervisor' },
-])
+import { ref, watch } from 'vue'
+import { useQuery } from '@vue/apollo-composable'
+import GetEmpleados from '~/api/empleados/getEmpleados.gql'
 
 const showModal = ref(false)
 const empleadoSeleccionado = ref(null)
+const empleados = ref([])
+
+const { result, refetch } = useQuery(GetEmpleados)
+
+watch(result, (value) => {
+  if (value?.empleados) {
+    empleados.value = value.empleados
+  }
+}, { immediate: true })
+
+function handleClose() {
+  showModal.value = false
+  refetch().then(({ data }) => {
+    empleados.value = data?.empleados ?? []
+  })
+}
 
 function agregarEmpleado() {
   empleadoSeleccionado.value = null
@@ -40,15 +53,15 @@ function editarEmpleado(empleado: any) {
     <Table
       :columns="['Nombre', 'Apellidos', 'Sueldo', 'Turno', 'Cargo', 'Acciones']"
       :rows="empleados.map(e => [
-        e.Nombre,
-        `${e.Apellido_Paterno} ${e.Apellido_Materno}`,
-        `$${e.Sueldo.toFixed(2)}`,
-        e.Turno,
-        e.Cargo,
+        e.nombre ?? '',
+        `${e.apellidoPaterno ?? ''} ${e.apellidoMaterno ?? ''}`,
+        `$${e.sueldo?.toFixed(2) ?? '0.00'}`,
+        e.turno ?? '',
+        e.cargo ?? '',
         { type: 'button', label: 'Editar', action: () => editarEmpleado(e) }
       ])"
     />
 
-    <EmpleadoForm v-if="showModal" :empleado="empleadoSeleccionado" @close="showModal = false" />
+    <EmpleadoForm v-if="showModal" :empleado="empleadoSeleccionado" @close="handleClose" />
   </Page>
 </template>

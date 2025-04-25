@@ -1,36 +1,52 @@
 <script setup lang="ts">
 import { defineProps, defineEmits, ref, watch } from 'vue'
+import { useMutation } from '@vue/apollo-composable'
+import CrearEmpleado from '~/api/empleados/crearEmpleado.gql'
 
 const props = defineProps<{ empleado: any | null }>()
 const emit = defineEmits(['close'])
 
 const form = ref({
-  Nombre: '',
-  Apellido_Paterno: '',
-  Apellido_Materno: '',
-  Sueldo: 0,
-  Turno: 'Mañana',
-  Cargo: 'Cajero',
+  nombre: '',
+  apellidoPaterno: '',
+  apellidoMaterno: '',
+  sueldo: 0,
+  turno: 'Mañana',
+  cargo: 'Cajero',
 })
 
 watch(() => props.empleado, (nuevo) => {
   if (nuevo) {
-    form.value = { ...nuevo }
+    form.value = {
+      nombre: nuevo.nombre,
+      apellidoPaterno: nuevo.apellidoPaterno,
+      apellidoMaterno: nuevo.apellidoMaterno,
+      sueldo: nuevo.sueldo,
+      turno: nuevo.turno,
+      cargo: nuevo.cargo,
+    }
   } else {
     form.value = {
-      Nombre: '',
-      Apellido_Paterno: '',
-      Apellido_Materno: '',
-      Sueldo: 0,
-      Turno: 'Mañana',
-      Cargo: 'Cajero',
+      nombre: '',
+      apellidoPaterno: '',
+      apellidoMaterno: '',
+      sueldo: 0,
+      turno: 'Mañana',
+      cargo: 'Cajero',
     }
   }
 }, { immediate: true })
 
-function guardar() {
-  // Aquí luego conectaremos a la API
-  emit('close')
+const { mutate, onDone, onError } = useMutation(CrearEmpleado)
+
+async function guardar() {
+  try {
+    await mutate({ input: { ...form.value } })
+    onDone(() => emit('close'))
+    onError((err) => console.error('Error al crear empleado:', err))
+  } catch (err) {
+    console.error('Error inesperado:', err)
+  }
 }
 </script>
 
@@ -40,18 +56,18 @@ function guardar() {
       <h3 class="text-xl font-bold mb-4">{{ props.empleado ? 'Editar Empleado' : 'Agregar Empleado' }}</h3>
 
       <form @submit.prevent="guardar" class="grid gap-4">
-        <input v-model="form.Nombre" placeholder="Nombre" class="input" />
-        <input v-model="form.Apellido_Paterno" placeholder="Apellido Paterno" class="input" />
-        <input v-model="form.Apellido_Materno" placeholder="Apellido Materno" class="input" />
-        <input v-model.number="form.Sueldo" type="number" placeholder="Sueldo" class="input" />
+        <input v-model="form.nombre" placeholder="Nombre" class="input" required />
+        <input v-model="form.apellidoPaterno" placeholder="Apellido Paterno" class="input" required />
+        <input v-model="form.apellidoMaterno" placeholder="Apellido Materno" class="input" required />
+        <input v-model.number="form.sueldo" type="number" placeholder="Sueldo" class="input" required />
 
-        <select v-model="form.Turno" class="input">
+        <select v-model="form.turno" class="input">
           <option value="Mañana">Mañana</option>
           <option value="Tarde">Tarde</option>
           <option value="Noche">Noche</option>
         </select>
 
-        <select v-model="form.Cargo" class="input">
+        <select v-model="form.cargo" class="input">
           <option value="Cajero">Cajero</option>
           <option value="Encargado de Almacén">Encargado de Almacén</option>
           <option value="Supervisor">Supervisor</option>

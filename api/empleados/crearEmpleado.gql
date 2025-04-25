@@ -1,0 +1,9 @@
+mutation CrearEmpleado($input: EmpleadoCInput!) {
+  empleado {
+    crearEmpleado(input: $input) {
+      idEmpleado
+      nombre
+      apellidoPaterno
+    }
+  }
+}
