@@ -1,8 +1,8 @@
 <template>
   <img
     src="/img/full-logo.png"
-    alt="CHS Logo"
-    class="h-16 w-auto"
+    alt="SUPERMARKET"
+    class="h-40 w-40"
   >
 </template>
 <script setup lang="ts">

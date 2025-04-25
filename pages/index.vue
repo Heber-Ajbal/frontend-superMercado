@@ -1,19 +1,18 @@
 <script setup lang="ts">
 import Breadcrumb from '~/components/ui/Breadcrumb.vue'
 import Page from '~/components/Page.vue'
-import { faUsers, faBox, faCashRegister, faShoppingCart, faWarehouse, faUserTie,faUserShield,faTruck } from '@fortawesome/free-solid-svg-icons'
+import { faUsers, faBox, faCashRegister, faShoppingCart, faWarehouse, faUserTie, faUserShield, faTruck } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 const modules = [
-  { label: 'Clientes', icon: faUsers, to: '/clientes' },
-  { label: 'Empleados', icon: faUserTie, to: '/empleados' },
-  { label: 'Productos', icon: faBox, to: '/productos' },
-  { label: 'Ventas', icon: faCashRegister, to: '/ventas' },
-  { label: 'Compras', icon: faShoppingCart, to: '/compras' },
-  { label: 'Inventario', icon: faWarehouse, to: '/inventario' },
-  { label: 'Usuarios', icon: faUserShield, to: '/usuarios' },
-  { label: 'Proveedores', icon: faTruck, to: '/proveedores' },
-
+  { label: 'Clientes', icon: faUsers, to: '/clientes', colorClass: 'text-blue-700' },
+  { label: 'Empleados', icon: faUserTie, to: '/empleados', colorClass: 'text-emerald-600' },
+  { label: 'Productos', icon: faBox, to: '/productos', colorClass: 'text-orange-600' },
+  { label: 'Ventas', icon: faCashRegister, to: '/ventas', colorClass: 'text-red-600' },
+  { label: 'Compras', icon: faShoppingCart, to: '/compras', colorClass: 'text-fuchsia-600' },
+  { label: 'Inventario', icon: faWarehouse, to: '/inventario', colorClass: 'text-indigo-700' },
+  { label: 'Usuarios', icon: faUserShield, to: '/usuarios', colorClass: 'text-pink-600' },
+  { label: 'Proveedores', icon: faTruck, to: '/proveedores', colorClass: 'text-teal-600' },
 ]
 </script>
 
@@ -32,7 +31,7 @@ const modules = [
             <h1
               class="mb-2 text-center text-xl font-extrabold text-gray-800 dark:text-white md:text-4xl"
             >
-              Sistema de Gestión - Supermercado
+              SISTEMA DE SUPERMARKET E.H.N
             </h1>
             <p class="text-center text-gray-500 dark:text-gray-300">
               Bienvenido, seleccione un módulo para continuar
@@ -44,10 +43,11 @@ const modules = [
               v-for="item in modules"
               :key="item.label"
               :to="item.to"
-              class="flex items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white px-6 py-4 text-xl font-medium text-gray-700 shadow hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700"
+              class="group flex flex-col items-center justify-center gap-2 rounded-2xl border border-gray-200 bg-white px-6 py-5 text-center font-semibold text-gray-700 shadow-md transition-all hover:scale-105 hover:shadow-xl hover:bg-gradient-to-r hover:from-blue-500 hover:to-cyan-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700"
             >
-              <FontAwesomeIcon :icon="item.icon" />
-              {{ item.label }}
+              <!-- Ícono mantiene su color original, solo cambia a blanco en hover -->
+              <FontAwesomeIcon :icon="item.icon" :class="['text-4xl', item.colorClass, 'transition-colors duration-300 group-hover:text-white']" />
+              <span class="text-lg tracking-wide group-hover:underline">{{ item.label }}</span>
             </NuxtLink>
           </div>
         </div>
@@ -55,3 +55,8 @@ const modules = [
     </Page>
   </div>
 </template>
+
+<style scoped>
+
+</style>
+

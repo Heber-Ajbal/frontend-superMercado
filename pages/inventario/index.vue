@@ -9,7 +9,7 @@ const inventario = ref([
     idInventario: 1,
     Producto: {
       Nombre: 'Leche',
-      Imagen: 'https://via.placeholder.com/150'
+      Imagen: 'https://walmartgt.vtexassets.com/arquivos/ids/355929/Leche-Nestl-NIDO-1-Protecci-n-Alimento-Complementario-a-Base-de-Leche-Instant-nea-Lata-2-2kg-2-36464.jpg?v=638169645805270000'
     },
     Almacen: { Nombre: 'Almacén Central' },
     Cantidad: 50,
@@ -19,7 +19,7 @@ const inventario = ref([
     idInventario: 2,
     Producto: {
       Nombre: 'Arroz',
-      Imagen: null
+      Imagen: 'https://walmartgt.vtexassets.com/arquivos/ids/452285/Arroz-Gallo-Dorado-Sabor-Pollo-250Gr-1-27018.jpg?v=638416331432730000'
     },
     Almacen: null,
     Cantidad: 20,
@@ -60,11 +60,14 @@ function editarRegistro(item: any) {
         :key="item.idInventario"
         class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow hover:shadow-md transition p-4 flex flex-col justify-between"
       >
-        <img
-          :src="item.Producto.Imagen || 'https://via.placeholder.com/150'"
-          alt="producto"
-          class="h-32 object-cover rounded mb-3"
-        />
+      
+        <div class="flex justify-center mb-3">
+          <img
+            :src="item.Producto.Imagen || 'https://via.placeholder.com/150'"
+            alt="producto"
+            class="object-contain rounded max-h-32 w-full"
+          />
+        </div>
         <div class="mb-2">
           <h3 class="text-lg font-bold text-gray-800 dark:text-white">{{ item.Producto.Nombre }}</h3>
           <p class="text-sm text-gray-500 dark:text-gray-300">Ubicación: {{ item.Ubicacion }}</p>

@@ -13,6 +13,15 @@ const clientes = ref([])
 
 const { result, refetch } = useQuery(GetClientes)
 
+
+const breadcrumb = [
+  {
+    route: '/clientes',
+    parameters: [],
+    text: 'Clientes',
+  }
+]
+
 watch(result, () => {
   if (result.value?.clientes) {
     clientes.value = result.value.clientes
@@ -38,8 +47,8 @@ function cerrarModal() {
 <template>
   <Page>
     <template #header>
-      <Breadcrumb :items="['Clientes']" />
-    </template>
+                <Breadcrumb :paths="breadcrumb" />
+            </template>
 
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-2xl font-semibold">Clientes</h2>
