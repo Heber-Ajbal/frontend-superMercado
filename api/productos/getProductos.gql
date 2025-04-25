@@ -5,6 +5,7 @@ query GetProductos {
     precioCompra
     precioVenta
     idCategoria
+    imagen
     idCategoriaNavigation {
       nombre
     }

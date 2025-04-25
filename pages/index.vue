@@ -13,6 +13,7 @@ const modules = [
   { label: 'Inventario', icon: faWarehouse, to: '/inventario', colorClass: 'text-indigo-700' },
   { label: 'Usuarios', icon: faUserShield, to: '/usuarios', colorClass: 'text-pink-600' },
   { label: 'Proveedores', icon: faTruck, to: '/proveedores', colorClass: 'text-teal-600' },
+  { label: 'Categorías', icon: faBox, to: '/categorias', colorClass: 'text-yellow-600' } 
 ]
 </script>
 

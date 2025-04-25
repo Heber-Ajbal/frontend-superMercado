@@ -57,7 +57,7 @@ function cerrarModal() {
         class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow hover:shadow-md transition p-4 flex flex-col justify-between"
       >
         <img
-          :src="p.imagen || 'https://via.placeholder.com/150'"
+          :src="p.imagen ? `data:image/*;base64,${p.imagen}` : 'https://via.placeholder.com/150'"
           alt="producto"
           class="h-40 object-cover rounded mb-4"
         />

@@ -12,7 +12,6 @@ const ventaExpandidaId = ref<number | null>(null)
 const { result, loading, error, refetch } = useQuery(GetVentas)
 const ventas = ref<any[]>([])
 
-// Asegura que se guarden las ventas cuando el query responde
 watch(result, () => {
   if (result.value?.ventas) {
     ventas.value = result.value.ventas.map(v => ({
@@ -30,7 +29,12 @@ watch(result, () => {
       }))
     }))
   }
-})
+}, { immediate: true })
+
+function generarFactura(venta: any) {
+  console.log('Generar factura para:', venta)
+  // Aquí más adelante se agregará la lógica real
+}
 </script>
 
 <template>
@@ -81,12 +85,21 @@ watch(result, () => {
           </p>
         </div>
 
-        <button
-          class="mt-2 text-blue-600 hover:underline text-sm self-start"
-          @click="ventaExpandidaId = ventaExpandidaId === venta.idVenta ? null : venta.idVenta"
-        >
-          {{ ventaExpandidaId === venta.idVenta ? 'Ocultar Detalles' : 'Ver Detalles' }}
-        </button>
+        <div class="flex justify-between mt-2 gap-2">
+          <button
+            class="text-blue-600 hover:underline text-sm"
+            @click="ventaExpandidaId = ventaExpandidaId === venta.idVenta ? null : venta.idVenta"
+          >
+            {{ ventaExpandidaId === venta.idVenta ? 'Ocultar Detalles' : 'Ver Detalles' }}
+          </button>
+
+          <button
+            class="text-green-600 hover:underline text-sm"
+            @click="generarFactura(venta)"
+          >
+            Generar Factura
+          </button>
+        </div>
 
         <div
           v-show="ventaExpandidaId === venta.idVenta"
@@ -97,12 +110,17 @@ watch(result, () => {
             <li
               v-for="(item, i) in venta.Detalle"
               :key="i"
-              class="flex justify-between"
+              class="flex flex-col border-b pb-2 mb-2"
             >
-              <span>{{ item.producto }} (x{{ item.cantidad }})</span>
-              <span>
-                ${{ (item.precio * item.cantidad - item.descuento).toFixed(2) }}
-              </span>
+              <div class="flex justify-between">
+                <span>{{ item.producto }} (x{{ item.cantidad }})</span>
+                <span>
+                  Total: ${{ (item.precio * item.cantidad - item.descuento).toFixed(2) }}
+                </span>
+              </div>
+              <div class="text-sm text-gray-500">
+                Precio unitario: ${{ item.precio.toFixed(2) }}
+              </div>
             </li>
           </ul>
         </div>
@@ -110,7 +128,5 @@ watch(result, () => {
     </div>
 
     <VentaForm :visible="showModal" @close="showModal = false; refetch()" />
-
-
   </Page>
 </template>

@@ -9,7 +9,6 @@ import CrearVenta from '~/api/ventas/crearVenta.gql'
 const props = defineProps<{ visible: boolean }>()
 const emit = defineEmits(['close'])
 
-// Queries (no lazy)
 const { result: clientesResult } = useQuery(GetClientes)
 const { result: empleadosResult } = useQuery(GetEmpleados)
 const { result: productosResult } = useQuery(GetProductos)
@@ -23,6 +22,7 @@ const form = ref({
   Empleado: '',
   Fecha: new Date().toISOString().slice(0, 10),
   Hora: new Date().toLocaleTimeString('en-GB').slice(0, 5),
+  tipoPago: 'Efectivo',
   Detalle: [{ producto: '', cantidad: 1, descuento: 0 }]
 })
 
@@ -38,7 +38,8 @@ const total = computed(() =>
   form.value.Detalle.reduce((acc, item) => {
     const prod = productos.value.find(p => p.codProducto === item.producto)
     const precio = prod?.precioVenta ?? 0
-    return acc + (item.cantidad * precio - item.descuento)
+    const descuentoAplicado = (item.descuento / 100) * precio * item.cantidad
+    return acc + (precio * item.cantidad - descuentoAplicado)
   }, 0)
 )
 
@@ -50,12 +51,17 @@ async function guardar() {
     idEmpleado: form.value.Empleado,
     fecha: form.value.Fecha,
     hora: form.value.Hora + ':00',
+    //tipoPago: form.value.tipoPago, // por ahora es solo visual
     monto: total.value,
-    detalles: form.value.Detalle.map(({ producto, cantidad, descuento }) => ({
-      codProducto: producto,
-      cantidad,
-      descuento
-    }))
+    detalles: form.value.Detalle.map(({ producto, cantidad, descuento }) => {
+      const precio = productos.value.find(p => p.codProducto === producto)?.precioVenta ?? 0
+      const descuentoFinal = (descuento / 100) * precio * cantidad
+      return {
+        codProducto: producto,
+        cantidad,
+        descuento: descuentoFinal
+      }
+    })
   }
 
   await mutate({ input: payload })
@@ -64,7 +70,7 @@ async function guardar() {
 </script>
 
 <template>
-  <div v-show="props.visible"  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
+  <div v-show="props.visible" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
     <div class="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-2xl shadow-xl">
       <h3 class="text-xl font-bold mb-4">Registrar Venta</h3>
 
@@ -104,6 +110,16 @@ async function guardar() {
           </div>
         </div>
 
+        <!-- Tipo de Pago -->
+        <div>
+          <label class="block text-sm font-medium mb-1">Tipo de Pago:</label>
+          <select v-model="form.tipoPago" class="input" required>
+            <option value="Efectivo">Efectivo</option>
+            <option value="Tarjeta">Tarjeta</option>
+            <option value="Transferencia">Transferencia</option>
+          </select>
+        </div>
+
         <!-- Productos -->
         <div class="border rounded p-4">
           <h4 class="text-md font-bold mb-3">Productos</h4>
@@ -133,13 +149,14 @@ async function guardar() {
               </div>
 
               <div class="flex-1">
-                <label class="block text-sm font-medium mb-1">Descuento:</label>
+                <label class="block text-sm font-medium mb-1">Descuento (%):</label>
                 <input
                   type="number"
                   v-model.number="prod.descuento"
                   min="0"
+                  max="100"
                   class="input w-[100px]"
-                  placeholder="Descuento"
+                  placeholder="0%"
                 />
               </div>
             </div>

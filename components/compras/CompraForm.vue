@@ -6,6 +6,7 @@ import GetProveedores from '~/api/proveedores/getProveedores.gql'
 import GetEmpleados from '~/api/empleados/getEmpleados.gql'
 import GetProductos from '~/api/productos/getProductos.gql'
 import CrearCompra from '~/api/compras/crearCompra.gql'
+import ProductoForm from '~/components/productos/ProductoForm.vue'
 
 const emit = defineEmits(['close'])
 
@@ -19,9 +20,11 @@ const form = ref({
   ]
 })
 
+const showProductoForm = ref(false)
+
 const { result: proveedoresResult } = useQuery(GetProveedores)
 const { result: empleadosResult } = useQuery(GetEmpleados)
-const { result: productosResult } = useQuery(GetProductos)
+const { result: productosResult, refetch: refetchProductos } = useQuery(GetProductos)
 const { mutate } = useMutation(CrearCompra)
 
 function agregarProducto() {
@@ -32,6 +35,15 @@ function eliminarProducto(index: number) {
   form.value.productos.splice(index, 1)
 }
 
+function abrirProductoForm() {
+  showProductoForm.value = true
+}
+
+function cerrarProductoForm() {
+  showProductoForm.value = false
+  refetchProductos()
+}
+
 const total = computed(() =>
   form.value.productos.reduce((acc, p) => acc + (p.precioProducto * p.cantidad), 0)
 )
@@ -39,19 +51,19 @@ const total = computed(() =>
 async function guardar() {
   try {
     await mutate({
-  input: {
-    codProveedor: parseInt(form.value.codProveedor),
-    idEmpleado: parseInt(form.value.idEmpleado),
-    fecha: form.value.fecha,
-    tipoPago: form.value.tipoPago,
-    monto: total.value,
-    detalleCompras: form.value.productos.map(p => ({
-      codProducto: parseInt(p.codProducto),
-      cantidad: p.cantidad,
-      precioProducto: p.precioProducto
-    }))
-  }
-})
+      input: {
+        codProveedor: parseInt(form.value.codProveedor),
+        idEmpleado: parseInt(form.value.idEmpleado),
+        fecha: form.value.fecha,
+        tipoPago: form.value.tipoPago,
+        monto: total.value,
+        detalleCompras: form.value.productos.map(p => ({
+          codProducto: parseInt(p.codProducto),
+          cantidad: p.cantidad,
+          precioProducto: p.precioProducto
+        }))
+      }
+    })
     emit('close')
   } catch (e) {
     console.error('Error al guardar compra:', e)
@@ -105,12 +117,11 @@ async function guardar() {
 
         <!-- Productos -->
         <div class="border rounded p-4">
-          <h4 class="text-md font-bold mb-3">Productos</h4>
-          <div
-            v-for="(prod, index) in form.productos"
-            :key="index"
-            class="flex flex-wrap gap-2 mb-4"
-          >
+          <div class="flex justify-between items-center mb-3">
+            <h4 class="text-md font-bold">Productos</h4>
+            <button type="button" @click="abrirProductoForm" class="text-blue-600 hover:underline text-sm">+ Nuevo Producto</button>
+          </div>
+          <div v-for="(prod, index) in form.productos" :key="index" class="flex flex-wrap gap-2 mb-4">
             <select v-model="prod.codProducto" class="input flex-grow min-w-[180px]" required>
               <option value="">Producto</option>
               <option v-for="p in productosResult?.productos || []" :key="p.codProducto" :value="p.codProducto">
@@ -121,33 +132,16 @@ async function guardar() {
             <div class="flex gap-4">
               <div class="flex-1">
                 <label class="block text-sm font-medium mb-1">Cantidad:</label>
-                <input
-                  type="number"
-                  v-model.number="prod.cantidad"
-                  min="1"
-                  class="input w-[100px]"
-                  placeholder="Cantidad"
-                />
+                <input type="number" v-model.number="prod.cantidad" min="1" class="input w-[100px]" />
               </div>
 
               <div class="flex-1">
                 <label class="block text-sm font-medium mb-1">Precio:</label>
-                <input
-                  type="number"
-                  v-model.number="prod.precioProducto"
-                  min="0"
-                  class="input w-[100px]"
-                  placeholder="Precio"
-                />
+                <input type="number" v-model.number="prod.precioProducto" min="0" class="input w-[100px]" />
               </div>
             </div>
 
-            <button
-              v-if="form.productos.length > 1"
-              type="button"
-              class="text-red-600 text-sm hover:underline w-full"
-              @click="eliminarProducto(index)"
-            >
+            <button v-if="form.productos.length > 1" type="button" class="text-red-600 text-sm hover:underline w-full" @click="eliminarProducto(index)">
               Quitar producto
             </button>
           </div>
@@ -166,6 +160,8 @@ async function guardar() {
           <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Guardar</button>
         </div>
       </form>
+
+      <ProductoForm v-if="showProductoForm" :producto="null" @close="cerrarProductoForm" />
     </div>
   </div>
 </template>
