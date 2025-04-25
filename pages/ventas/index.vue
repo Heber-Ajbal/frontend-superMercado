@@ -5,6 +5,9 @@ import VentaForm from '~/components/ventas/VentaForm.vue'
 import { ref, computed, watch } from 'vue'
 import { useQuery } from '@vue/apollo-composable'
 import GetVentas from '~/api/ventas/getVentas.gql'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
+import { generarFacturaPdf } from '~/utils/factura'
 
 const showModal = ref(false)
 const ventaExpandidaId = ref<number | null>(null)
@@ -16,6 +19,7 @@ watch(result, () => {
   if (result.value?.ventas) {
     ventas.value = result.value.ventas.map(v => ({
       idVenta: v.idVenta,
+      Direccion: v.idClienteNavigation?.direccion,
       Cliente: `${v.idClienteNavigation?.nombre ?? 'Desconocido'} ${v.idClienteNavigation?.apellidoPaterno ?? ''}`,
       Empleado: `${v.idEmpleadoNavigation?.nombre ?? 'Desconocido'} ${v.idEmpleadoNavigation?.apellidoPaterno ?? ''}`,
       Fecha: v.fecha,
@@ -32,8 +36,8 @@ watch(result, () => {
 }, { immediate: true })
 
 function generarFactura(venta: any) {
-  console.log('Generar factura para:', venta)
-  // Aquí más adelante se agregará la lógica real
+  const { $pdfMake } = useNuxtApp()
+  generarFacturaPDF(venta, $pdfMake)
 }
 </script>
 
