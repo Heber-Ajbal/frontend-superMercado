@@ -1,5 +1,8 @@
+
+
+
 <script setup lang="ts">
-import { defineProps, defineEmits, ref, computed, watch } from 'vue'
+import { defineProps, defineEmits, ref, computed } from 'vue'
 import { useQuery, useMutation } from '@vue/apollo-composable'
 import GetClientes from '~/api/clientes/getClientes.gql'
 import GetEmpleados from '~/api/empleados/getEmpleados.gql'
@@ -23,7 +26,12 @@ const form = ref({
   Fecha: new Date().toISOString().slice(0, 10),
   Hora: new Date().toLocaleTimeString('en-GB').slice(0, 5),
   tipoPago: 'Efectivo',
-  Detalle: [{ producto: '', cantidad: 1, descuento: 0 }]
+  Detalle: [{ producto: '', cantidad: 1, descuento: 0 }],
+  tarjeta: {
+    numero: '',
+    expiracion: '',
+    codigo: ''
+  }
 })
 
 function agregarProducto() {
@@ -45,13 +53,45 @@ const total = computed(() =>
 
 const { mutate } = useMutation(CrearVenta)
 
+async function procesarPagoConTarjeta(): Promise<boolean> {
+  try {
+    const response = await fetch('/api/card', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        card_number: form.value.tarjeta.numero,
+        expiration_date: form.value.tarjeta.expiracion,
+        security_code: form.value.tarjeta.codigo,
+        amount: total.value,
+        company_name: 'SUPERMARKET E.H.N'
+      })
+    })
+
+    const data = await response.json()
+
+    console.log(data.success)
+    return  response.ok && data.success === true;
+  } catch (error) {
+    console.error('Error en el pago con tarjeta:', error)
+    return false
+  }
+}
+
+
 async function guardar() {
+  if (form.value.tipoPago === 'Tarjeta') {
+    const exito = await procesarPagoConTarjeta()
+    if (!exito) {
+      alert('Error al procesar el pago con tarjeta. Intenta nuevamente.')
+      return
+    }
+  }
+
   const payload = {
     idCliente: form.value.Cliente,
     idEmpleado: form.value.Empleado,
     fecha: form.value.Fecha,
     hora: form.value.Hora + ':00',
-    //tipoPago: form.value.tipoPago, // por ahora es solo visual
     monto: total.value,
     detalles: form.value.Detalle.map(({ producto, cantidad, descuento }) => {
       const precio = productos.value.find(p => p.codProducto === producto)?.precioVenta ?? 0
@@ -120,6 +160,22 @@ async function guardar() {
           </select>
         </div>
 
+        <!-- Campos de tarjeta -->
+        <div v-if="form.tipoPago === 'Tarjeta'" class="grid gap-4 mt-2">
+          <div>
+            <label class="block text-sm font-medium mb-1">Número de Tarjeta:</label>
+            <input type="text" v-model="form.tarjeta.numero" class="input" required />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Fecha de Expiración (MM/YY):</label>
+            <input type="text" v-model="form.tarjeta.expiracion" class="input" placeholder="03/30" required />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Código de Seguridad:</label>
+            <input type="text" v-model="form.tarjeta.codigo" class="input" required />
+          </div>
+        </div>
+
         <!-- Productos -->
         <div class="border rounded p-4">
           <h4 class="text-md font-bold mb-3">Productos</h4>
@@ -143,7 +199,6 @@ async function guardar() {
                   v-model.number="prod.cantidad"
                   min="1"
                   class="input w-[100px]"
-                  placeholder="Cantidad"
                   required
                 />
               </div>
@@ -156,7 +211,6 @@ async function guardar() {
                   min="0"
                   max="100"
                   class="input w-[100px]"
-                  placeholder="0%"
                 />
               </div>
             </div>
@@ -198,3 +252,4 @@ async function guardar() {
   @apply w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring focus:border-blue-300;
 }
 </style>
+
