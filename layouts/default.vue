@@ -6,9 +6,15 @@ import DropdownLink from '@/components/ui/DropdownLink.vue'
 import NavLink from '@/components/ui/NavLink.vue'
 import ResponsiveNavLink from '@/components/ui/ResponsiveNavLink.vue'
 import DarkModeToggle from '~/components/ui/DarkModeToggle.vue'
+import { useAuthStore } from '~/stores/auth'
 
 const showingNavigationDropdown = ref(false)
 const user = ''
+const auth = useAuthStore()
+
+function cerrarSesion() {
+  auth.logout()
+}
 </script>
 
 <template>
@@ -29,14 +35,18 @@ const user = ''
               </div>
 
               <!-- Navigation Links -->
-              <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                <NavLink to="login">Login</NavLink>
-              </div>
+              
             </div>
 
-            <div class="hidden sm:ms-6 sm:flex sm:items-center">
-              <DarkModeToggle />
-            </div>
+            <div class="hidden sm:ms-6 sm:flex sm:items-center gap-x-6">
+            <DarkModeToggle />
+
+            <button 
+              @click="cerrarSesion"  class="text-sm text-gray-700 hover:underline dark:text-gray-300 dark:hover:text-white transition">
+              Cerrar Sesión
+            </button>
+          </div>
+
           </div>
         </div>
       </nav>

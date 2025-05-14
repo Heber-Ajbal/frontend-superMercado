@@ -1,0 +1,8 @@
+mutation ActualizarProducto($input: ProductoCInput!) {
+  producto {
+    actualizarProducto(input: $input) {
+      codProducto
+      nombre
+    }
+  }
+}

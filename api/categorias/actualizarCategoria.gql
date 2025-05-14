@@ -1,0 +1,9 @@
+mutation ActualizarCategoria($input: categoriaCInput!) {
+  categoria {
+    actualizarCategoria(input: $input) {
+      idCategoria
+      nombre
+      descripcion
+    }
+  }
+}

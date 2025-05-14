@@ -1,0 +1,12 @@
+mutation ActualizarCliente($input: ClienteInput!) {
+  cliente {
+    actualizarCliente(input: $input) {
+      idCliente
+      nombre
+      apellidoPaterno
+      apellidoMaterno
+      direccion
+      telefono
+    }
+  }
+}

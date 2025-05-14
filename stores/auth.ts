@@ -14,6 +14,12 @@ export const useAuthStore = defineStore('auth', {
     logout() {
       this.user = null
       this.token = ''
+      localStorage.removeItem('token') // Limpiamos token guardado manualmente
+
+      // Redirigimos al login
+      if (process.client) {
+        navigateTo('/login')
+      }
     }
   },
   persist: true

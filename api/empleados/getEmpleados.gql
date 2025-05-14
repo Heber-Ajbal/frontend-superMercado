@@ -3,5 +3,9 @@ query {
     idEmpleado
     nombre
     apellidoPaterno
+    apellidoMaterno
+    cargo
+    sueldo
+    turno
   }
 }

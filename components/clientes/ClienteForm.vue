@@ -2,11 +2,13 @@
 import { defineProps, defineEmits, ref, watch } from 'vue'
 import { useMutation } from '@vue/apollo-composable'
 import CrearCliente from '~/api/clientes/crearCliente.gql'
+import ActualizarCliente from '~/api/clientes/actualizarCliente.gql'
 
 const props = defineProps<{ cliente: any | null }>()
 const emit = defineEmits(['close'])
 
 const form = ref({
+  id: null,
   Nombre: '',
   Apellido_Paterno: '',
   Apellido_Materno: '',
@@ -14,11 +16,19 @@ const form = ref({
   Telefono: '',
 })
 
-// Cuando se edita un cliente, carga los datos en el formulario
+// Cargar datos al abrir modal
 watch(() => props.cliente, (nuevo) => {
   form.value = nuevo
-    ? { ...nuevo }
+    ? { 
+        id: nuevo.idCliente,
+        Nombre: nuevo.nombre,
+        Apellido_Paterno: nuevo.apellidoPaterno,
+        Apellido_Materno: nuevo.apellidoMaterno,
+        Direccion: nuevo.direccion,
+        Telefono: nuevo.telefono
+      }
     : {
+        id: null,
         Nombre: '',
         Apellido_Paterno: '',
         Apellido_Materno: '',
@@ -27,19 +37,37 @@ watch(() => props.cliente, (nuevo) => {
       }
 }, { immediate: true })
 
-const { mutate } = useMutation(CrearCliente)
+const { mutate: crearCliente } = useMutation(CrearCliente)
+const { mutate: actualizarCliente } = useMutation(ActualizarCliente)
 
 async function guardar() {
   try {
-    await mutate({
-      input: {
-        nombre: form.value.Nombre,
-        apellidoPaterno: form.value.Apellido_Paterno,
-        apellidoMaterno: form.value.Apellido_Materno,
-        direccion: form.value.Direccion,
-        telefono: form.value.Telefono
-      }
-    })
+    if (form.value.id !== null) {
+      // ✅ Editar cliente existente
+
+      console.log(form.value)
+      await actualizarCliente({
+        input: {
+          idCliente: form.value.id, 
+          nombre: form.value.Nombre,
+          apellidoPaterno: form.value.Apellido_Paterno,
+          apellidoMaterno: form.value.Apellido_Materno,
+          direccion: form.value.Direccion,
+          telefono: form.value.Telefono
+        }
+      })
+    } else {
+      // ✅ Crear nuevo cliente
+      await crearCliente({
+        input: {
+          nombre: form.value.Nombre,
+          apellidoPaterno: form.value.Apellido_Paterno,
+          apellidoMaterno: form.value.Apellido_Materno,
+          direccion: form.value.Direccion,
+          telefono: form.value.Telefono
+        }
+      })
+    }
     emit('close')
   } catch (error) {
     console.error('Error al guardar cliente:', error)

@@ -1,0 +1,13 @@
+mutation ActualizarEmpleado($input: EmpleadoInput!) {
+  empleado {
+    actualizarEmpleado(input: $input) {
+      idEmpleado
+      nombre
+      apellidoPaterno
+      apellidoMaterno
+      sueldo
+      turno
+      cargo
+    }
+  }
+}
