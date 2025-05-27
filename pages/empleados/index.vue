@@ -55,7 +55,7 @@ function editarEmpleado(empleado: any) {
       :rows="empleados.map(e => [
         e.nombre ?? '',
         `${e.apellidoPaterno ?? ''} ${e.apellidoMaterno ?? ''}`,
-        `$${e.sueldo?.toFixed(2) ?? '0.00'}`,
+        `Q${e.sueldo?.toFixed(2) ?? '0.00'}`,
         e.turno ?? '',
         e.cargo ?? '',
         { type: 'button', label: 'Editar', action: () => editarEmpleado(e) }
