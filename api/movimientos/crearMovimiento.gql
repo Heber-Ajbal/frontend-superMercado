@@ -1,0 +1,5 @@
+mutation CrearMovimiento($input: MovimientosAlmacenInput!) {
+  crearMovimiento(input: $input) {
+    idMovimiento
+  }
+}

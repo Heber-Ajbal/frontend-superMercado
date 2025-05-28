@@ -1,0 +1,15 @@
+query GetInventario {
+  inventarios {
+    idInventario
+    cantidad
+    ubicacion
+    codProductoNavigation{
+      nombre
+      imagen
+    }
+    idAlmacenNavigation{
+      nombre
+    }
+      
+  }
+}

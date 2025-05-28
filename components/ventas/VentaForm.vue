@@ -1,6 +1,3 @@
-
-
-
 <script setup lang="ts">
 import { defineProps, defineEmits, ref, computed } from 'vue'
 import { useQuery, useMutation } from '@vue/apollo-composable'
@@ -8,17 +5,27 @@ import GetClientes from '~/api/clientes/getClientes.gql'
 import GetEmpleados from '~/api/empleados/getEmpleados.gql'
 import GetProductos from '~/api/productos/getProductos.gql'
 import CrearVenta from '~/api/ventas/crearVenta.gql'
+import ClienteForm from '~/components/clientes/ClienteForm.vue'
+import GetInventario from '~/api/inventario/getInventario.gql'
+
 
 const props = defineProps<{ visible: boolean }>()
 const emit = defineEmits(['close'])
 
-const { result: clientesResult } = useQuery(GetClientes)
+const { result: clientesResult, refetch: refetchClientes } = useQuery(GetClientes)
+
 const { result: empleadosResult } = useQuery(GetEmpleados)
 const { result: productosResult } = useQuery(GetProductos)
+const { result: inventarioResult } = useQuery(GetInventario)
+const inventario = computed(() => inventarioResult.value?.inventario ?? [])
+
 
 const clientes = computed(() => clientesResult.value?.clientes ?? [])
 const empleados = computed(() => empleadosResult.value?.empleados ?? [])
 const productos = computed(() => productosResult.value?.productos ?? [])
+
+const showClienteModal = ref(false)
+const clienteCreado = ref<any | null>(null)
 
 const form = ref({
   Cliente: '',
@@ -31,6 +38,13 @@ const form = ref({
     numero: '',
     expiracion: '',
     codigo: ''
+  }
+})
+
+watch(clienteCreado, (nuevoCliente) => {
+  if (nuevoCliente) {
+    form.value.Cliente = nuevoCliente.idCliente
+    refetchClientes() // para que aparezca en el select
   }
 })
 
@@ -70,7 +84,7 @@ async function procesarPagoConTarjeta(): Promise<boolean> {
     const data = await response.json()
 
     console.log(data.success)
-    return  response.ok && data.success === true;
+    return response.ok && data.success === true;
   } catch (error) {
     console.error('Error en el pago con tarjeta:', error)
     return false
@@ -79,6 +93,20 @@ async function procesarPagoConTarjeta(): Promise<boolean> {
 
 
 async function guardar() {
+
+  const erroresStock = form.value.Detalle.filter(item => {
+    const stockDisponible = inventario.value.find(i =>
+      i.codProducto === item.producto && i.Ubicacion === 'Piso de Ventas'
+    )?.Cantidad || 0
+
+    return item.cantidad > stockDisponible
+  })
+
+  if (erroresStock.length > 0) {
+    alert('No hay suficiente stock en el piso de ventas para uno o más productos.')
+    return
+  }
+
   if (form.value.tipoPago === 'Tarjeta') {
     const exito = await procesarPagoConTarjeta()
     if (!exito) {
@@ -110,7 +138,8 @@ async function guardar() {
 </script>
 
 <template>
-  <div v-show="props.visible" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
+  <div v-show="props.visible"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
     <div class="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-2xl shadow-xl">
       <h3 class="text-xl font-bold mb-4">Registrar Venta</h3>
 
@@ -125,6 +154,9 @@ async function guardar() {
                 {{ c.nombre }} {{ c.apellidoPaterno }}
               </option>
             </select>
+            <button type="button" class="text-blue-600 text-sm mt-1 hover:underline" @click="showClienteModal = true">
+              + Agregar nuevo cliente
+            </button>
           </div>
 
           <div class="flex-1">
@@ -179,11 +211,7 @@ async function guardar() {
         <!-- Productos -->
         <div class="border rounded p-4">
           <h4 class="text-md font-bold mb-3">Productos</h4>
-          <div
-            v-for="(prod, index) in form.Detalle"
-            :key="index"
-            class="flex flex-wrap gap-2 mb-4"
-          >
+          <div v-for="(prod, index) in form.Detalle" :key="index" class="flex flex-wrap gap-2 mb-4">
             <select v-model="prod.producto" class="input flex-grow min-w-[180px]" required>
               <option value="">Producto</option>
               <option v-for="p in productos" :key="p.codProducto" :value="p.codProducto">
@@ -194,33 +222,17 @@ async function guardar() {
             <div class="flex gap-4">
               <div class="flex-1">
                 <label class="block text-sm font-medium mb-1">Cantidad:</label>
-                <input
-                  type="number"
-                  v-model.number="prod.cantidad"
-                  min="1"
-                  class="input w-[100px]"
-                  required
-                />
+                <input type="number" v-model.number="prod.cantidad" min="1" class="input w-[100px]" required />
               </div>
 
               <div class="flex-1">
                 <label class="block text-sm font-medium mb-1">Descuento (%):</label>
-                <input
-                  type="number"
-                  v-model.number="prod.descuento"
-                  min="0"
-                  max="100"
-                  class="input w-[100px]"
-                />
+                <input type="number" v-model.number="prod.descuento" min="0" max="100" class="input w-[100px]" />
               </div>
             </div>
 
-            <button
-              v-if="form.Detalle.length > 1"
-              type="button"
-              class="text-red-600 text-sm hover:underline w-full"
-              @click="eliminarProducto(index)"
-            >
+            <button v-if="form.Detalle.length > 1" type="button" class="text-red-600 text-sm hover:underline w-full"
+              @click="eliminarProducto(index)">
               Quitar producto
             </button>
           </div>
@@ -244,7 +256,16 @@ async function guardar() {
         </div>
       </form>
     </div>
+
+    <ClienteForm v-if="showClienteModal" :cliente="null" @close="() => {
+      showClienteModal = false
+      refetchClientes()
+    }" />
+
+
   </div>
+
+
 </template>
 
 <style scoped>
@@ -252,4 +273,3 @@ async function guardar() {
   @apply w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring focus:border-blue-300;
 }
 </style>
-

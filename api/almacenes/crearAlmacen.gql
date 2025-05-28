@@ -1,0 +1,9 @@
+mutation CrearAlmacen($input: AlmacenInput!) {
+  almacen{
+    crearAlmacen(input: $input)  {
+       idAlmacen
+       ubicacion
+       nombre
+    }
+  }
+}

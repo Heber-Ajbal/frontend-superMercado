@@ -1,0 +1,7 @@
+query GetAlmacenes {
+  almacenes {
+    idAlmacen
+    nombre
+    ubicacion
+  }
+}
