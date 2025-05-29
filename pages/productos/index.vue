@@ -32,6 +32,12 @@ function cerrarModal() {
   showModal.value = false
   refetch()
 }
+
+// Función para formatear precios en quetzales
+function formatoQ(valor: number | undefined) {
+  if (typeof valor !== 'number') return 'Q0.00'
+  return `Q${valor.toFixed(2)}`
+}
 </script>
 
 <template>
@@ -68,7 +74,7 @@ function cerrarModal() {
           </p>
         </div>
         <div class="flex justify-between items-center mt-auto">
-          <span class="text-green-600 font-semibold text-md">Q{{ p.precioVenta.toFixed(2) }}</span>
+          <span class="text-green-600 font-semibold text-md">{{ formatoQ(p.precioVenta) }}</span>
           <button
             class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"
             @click="editarProducto(p)"
@@ -79,7 +85,6 @@ function cerrarModal() {
       </div>
     </div>
 
-    <!-- Modal de agregar/editar producto -->
     <ProductoForm
       v-if="showModal"
       :producto="productoSeleccionado"

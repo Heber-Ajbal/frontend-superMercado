@@ -2,12 +2,10 @@
 import Page from '~/components/Page.vue'
 import Breadcrumb from '~/components/ui/Breadcrumb.vue'
 import VentaForm from '~/components/ventas/VentaForm.vue'
-import { ref, computed, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { useQuery } from '@vue/apollo-composable'
 import GetVentas from '~/api/ventas/getVentas.gql'
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
-import { generarFacturaPdf } from '~/utils/factura'
+import { generarFacturaPDF } from '~/utils/factura'  // Asegúrate que exportas esta función correctamente
 
 const showModal = ref(false)
 const ventaExpandidaId = ref<number | null>(null)
@@ -20,8 +18,8 @@ watch(result, () => {
     ventas.value = result.value.ventas.map(v => ({
       idVenta: v.idVenta,
       Direccion: v.idClienteNavigation?.direccion,
-      Cliente: `${v.idClienteNavigation?.nombre ?? 'Desconocido'} ${v.idClienteNavigation?.apellidoPaterno ?? ''}`,
-      Empleado: `${v.idEmpleadoNavigation?.nombre ?? 'Desconocido'} ${v.idEmpleadoNavigation?.apellidoPaterno ?? ''}`,
+      Cliente: `${v.idClienteNavigation?.nombre ?? 'Desconocido'} ${v.idClienteNavigation?.apellidoPaterno ?? ''}`.trim(),
+      Empleado: `${v.idEmpleadoNavigation?.nombre ?? 'Desconocido'} ${v.idEmpleadoNavigation?.apellidoPaterno ?? ''}`.trim(),
       Fecha: v.fecha,
       Hora: v.hora?.slice(0, 5),
       Monto: v.monto,
@@ -29,15 +27,15 @@ watch(result, () => {
         producto: d.codProductoNavigation?.nombre ?? 'Producto desconocido',
         cantidad: d.cantidad,
         precio: d.codProductoNavigation?.precioVenta ?? 0,
-        descuento: d.descuento
+        descuento: d.descuento ?? 0
       }))
     }))
   }
 }, { immediate: true })
 
 function generarFactura(venta: any) {
-  const { $pdfMake } = useNuxtApp()
-  generarFacturaPDF(venta, $pdfMake)
+  // Usar la función importada directamente
+  generarFacturaPDF(venta)
 }
 </script>
 
