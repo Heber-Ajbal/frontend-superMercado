@@ -9,6 +9,36 @@ import GetInventario from '~/api/inventario/getInventario.gql'
 const { result, loading, refetch } = useQuery(GetInventario)
 const inventario = computed(() => result.value?.inventarios ?? [])
 
+// ✅ Agrupar por producto + (piso de ventas o idAlmacen)
+const inventarioAgrupado = computed(() => {
+  const mapa = new Map<string, any>()
+
+  for (const item of inventario.value) {
+    const cod = item.codProducto
+    const ubicacion = item.ubicacion
+    const idAlmacen = item.idAlmacen
+    const esPisoVentas = ubicacion === 'Piso de Ventas'
+
+    // Clave por producto + tipo ubicación
+    const clave = esPisoVentas
+      ? `${cod}-PisoDeVentas`
+      : `${cod}-Almacen-${idAlmacen}`
+
+    if (!mapa.has(clave)) {
+      mapa.set(clave, {
+        codProducto: cod,
+        cantidad: item.cantidad ?? 0,
+        codProductoNavigation: item.codProductoNavigation,
+        ubicacion: esPisoVentas ? 'Piso de Ventas' : item.idAlmacenNavigation?.nombre ?? 'Almacén',
+      })
+    } else {
+      mapa.get(clave).cantidad += item.cantidad ?? 0
+    }
+  }
+
+  return Array.from(mapa.values())
+})
+
 const showModal = ref(false)
 const inventarioSeleccionado = ref(null)
 
@@ -45,26 +75,30 @@ function editarRegistro(item: any) {
       Cargando inventario...
     </div>
 
-    <div v-else-if="inventario.length === 0" class="text-center text-gray-500 dark:text-gray-300">
+    <div v-else-if="inventarioAgrupado.length === 0" class="text-center text-gray-500 dark:text-gray-300">
       No hay registros de inventario.
     </div>
 
     <div v-else class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
-      <div v-for="item in inventario" :key="item.idInventario"
-        class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow hover:shadow-md transition p-4 flex flex-col justify-between">
+      <div
+        v-for="item in inventarioAgrupado"
+        :key="`${item.codProducto}-${item.ubicacion}`"
+        class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow hover:shadow-md transition p-4 flex flex-col justify-between"
+      >
         <div class="flex justify-center mb-3">
           <img
             :src="item.codProductoNavigation?.imagen ? `data:image/png;base64,${item.codProductoNavigation.imagen}` : 'https://via.placeholder.com/150'"
-            alt="producto" class="object-contain rounded max-h-32 w-full" />
+            alt="producto"
+            class="object-contain rounded max-h-32 w-full"
+          />
         </div>
 
         <div class="mb-2">
           <h3 class="text-lg font-bold text-gray-800 dark:text-white">
             {{ item.codProductoNavigation?.nombre ?? 'Producto desconocido' }}
           </h3>
-          <p class="text-sm text-gray-500 dark:text-gray-300">Ubicación: {{ item.ubicacion }}</p>
           <p class="text-sm text-gray-500 dark:text-gray-300">
-            Almacén: {{ item.idAlmacenNavigation?.nombre || 'Piso de ventas' }}
+            Ubicación: {{ item.ubicacion }}
           </p>
           <p class="text-sm text-gray-800 dark:text-white font-semibold mt-1">
             Cantidad: {{ item.cantidad }}
@@ -80,6 +114,9 @@ function editarRegistro(item: any) {
       </div>
     </div>
 
-    <InventarioForm v-if="showModal" :registro="inventarioSeleccionado" @close="showModal = false; refetch()" />
+    <InventarioForm
+      v-if="showModal"
+      :registro="inventarioSeleccionado"
+      @close="showModal = false; refetch()" />
   </Page>
 </template>
