@@ -17,7 +17,7 @@ const { result: clientesResult, refetch: refetchClientes } = useQuery(GetCliente
 const { result: empleadosResult } = useQuery(GetEmpleados)
 const { result: productosResult } = useQuery(GetProductos)
 const { result: inventarioResult } = useQuery(GetInventario)
-const inventario = computed(() => inventarioResult.value?.inventario ?? [])
+const inventario = computed(() => inventarioResult.value?.inventarios ?? [])
 
 
 const clientes = computed(() => clientesResult.value?.clientes ?? [])
@@ -96,16 +96,20 @@ async function guardar() {
 
   const erroresStock = form.value.Detalle.filter(item => {
     const stockDisponible = inventario.value.find(i =>
-      i.codProducto === item.producto && i.Ubicacion === 'Piso de Ventas'
-    )?.Cantidad || 0
+      i.codProducto === item.producto && i.ubicacion === 'Piso de Ventas'
+    )?.cantidad || 0
 
     return item.cantidad > stockDisponible
   })
+
+  console.log(inventario.value);
+  console.log(form.value.Detalle)
 
   if (erroresStock.length > 0) {
     alert('No hay suficiente stock en el piso de ventas para uno o más productos.')
     return
   }
+
 
   if (form.value.tipoPago === 'Tarjeta') {
     const exito = await procesarPagoConTarjeta()

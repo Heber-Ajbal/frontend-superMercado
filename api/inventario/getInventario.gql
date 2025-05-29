@@ -3,6 +3,7 @@ query GetInventario {
     idInventario
     cantidad
     ubicacion
+    codProducto
     codProductoNavigation{
       nombre
       imagen
