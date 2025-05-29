@@ -29,9 +29,9 @@ export async function generarFacturaPDF(venta: any) {
   const body = venta.Detalle.map((item: any) => [
     item.producto,
     item.cantidad,
-    `$${item.precio.toFixed(2)}`,
-    `$${item.descuento.toFixed(2)}`,
-    `$${(item.precio * item.cantidad - item.descuento).toFixed(2)}`
+    `Q${item.precio.toFixed(2)}`,                   // Precio unitario con Q
+    `Q${item.descuento.toFixed(2)}`,                 // Descuento con Q
+    `Q${(item.precio * item.cantidad - item.descuento).toFixed(2)}` // Subtotal con Q
   ])
 
   autoTable(doc, {
@@ -40,26 +40,25 @@ export async function generarFacturaPDF(venta: any) {
     body
   })
 
-  doc.text(`Total: $${venta.Monto.toFixed(2)}`, 150, doc.lastAutoTable.finalY + 10)
+  doc.text(`Total: Q${venta.Monto.toFixed(2)}`, 150, doc.lastAutoTable.finalY + 10) // Total con Q
 
   doc.save(`factura_${nombreCliente}.pdf`)
 }
 
 async function getImageBase64(path: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const img = new Image()
-      img.crossOrigin = 'anonymous'
-      img.onload = () => {
-        const canvas = document.createElement('canvas')
-        canvas.width = img.width
-        canvas.height = img.height
-        const ctx = canvas.getContext('2d')
-        ctx?.drawImage(img, 0, 0)
-        const dataURL = canvas.toDataURL('image/png')
-        resolve(dataURL)
-      }
-      img.onerror = reject
-      img.src = path
-    })
-  }
-  
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = img.width
+      canvas.height = img.height
+      const ctx = canvas.getContext('2d')
+      ctx?.drawImage(img, 0, 0)
+      const dataURL = canvas.toDataURL('image/png')
+      resolve(dataURL)
+    }
+    img.onerror = reject
+    img.src = path
+  })
+}
