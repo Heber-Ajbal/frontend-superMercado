@@ -44,6 +44,14 @@ function cerrarProductoForm() {
   refetchProductos()
 }
 
+function formatoMoneda(valor: number) {
+  return new Intl.NumberFormat('es-GT', {
+    style: 'currency',
+    currency: 'GTQ',
+    minimumFractionDigits: 2
+  }).format(valor)
+}
+
 const total = computed(() =>
   form.value.productos.reduce((acc, p) => acc + (p.precioProducto * p.cantidad), 0)
 )
@@ -119,7 +127,7 @@ async function guardar() {
         <div class="border rounded p-4">
           <div class="flex justify-between items-center mb-3">
             <h4 class="text-md font-bold">Productos</h4>
-            <button type="button" @click="abrirProductoForm" class="text-blue-600 hover:underline text-sm"> Nuevo Producto</button>
+            <button type="button" @click="abrirProductoForm" class="text-blue-600 hover:underline text-sm">Nuevo Producto</button>
           </div>
           <div v-for="(prod, index) in form.productos" :key="index" class="flex flex-wrap gap-2 mb-4">
             <select v-model="prod.codProducto" class="input flex-grow min-w-[180px]" required>
@@ -141,6 +149,11 @@ async function guardar() {
               </div>
             </div>
 
+            <!-- Subtotal en Quetzales -->
+            <p class="text-sm text-gray-600 mt-1 w-full">
+              Subtotal: {{ formatoMoneda(prod.precioProducto * prod.cantidad) }}
+            </p>
+
             <button v-if="form.productos.length > 1" type="button" class="text-red-600 text-sm hover:underline w-full" @click="eliminarProducto(index)">
               Quitar producto
             </button>
@@ -152,9 +165,8 @@ async function guardar() {
         </div>
 
         <!-- Total -->
-        <label class="block text-sm font-medium mb-1">Precio (Q):</label>
-
-        <p class="text-right font-bold text-lg mt-2">Total: Q{{ total.toFixed(2) }}</p>
+        <label class="block text-sm font-medium mb-1">Precio Total:</label>
+        <p class="text-right font-bold text-lg mt-2">{{ formatoMoneda(total) }}</p>
 
         <!-- Acciones -->
         <div class="flex justify-end gap-2 mt-4">
