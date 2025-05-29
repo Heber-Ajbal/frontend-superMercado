@@ -87,7 +87,7 @@ function agregarCompra() {
               class="flex justify-between"
             >
               <span>{{ item.producto }} (x{{ item.cantidad }})</span>
-              <span>${{ (item.precio * item.cantidad).toFixed(2) }}</span>
+              <span>Q{{ (item.precio * item.cantidad).toFixed(2) }}</span>
             </li>
           </ul>
         </div>
