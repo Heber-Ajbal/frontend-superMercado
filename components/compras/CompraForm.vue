@@ -117,8 +117,6 @@ async function guardar() {
             <label class="block text-sm font-medium mb-1">Tipo de Pago:</label>
             <select v-model="form.tipoPago" class="input">
               <option value="Efectivo">Efectivo</option>
-              <option value="Tarjeta">Tarjeta</option>
-              <option value="Transferencia">Transferencia</option>
             </select>
           </div>
         </div>
