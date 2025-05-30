@@ -7,8 +7,9 @@ import GetProductos from '~/api/productos/getProductos.gql'
 import CrearVenta from '~/api/ventas/crearVenta.gql'
 import ClienteForm from '~/components/clientes/ClienteForm.vue'
 import GetInventario from '~/api/inventario/getInventario.gql'
+import { env } from 'process'
 
-
+const config = useRuntimeConfig()
 const props = defineProps<{ visible: boolean }>()
 const emit = defineEmits(['close'])
 
@@ -77,7 +78,8 @@ async function procesarPagoConTarjeta(): Promise<boolean> {
         expiration_date: form.value.tarjeta.expiracion,
         security_code: form.value.tarjeta.codigo,
         amount: total.value,
-        company_name: 'SUPERMARKET E.H.N'
+        company_account_number: config.public.companyAccount
+        
       })
     })
 
@@ -192,7 +194,6 @@ async function guardar() {
           <select v-model="form.tipoPago" class="input" required>
             <option value="Efectivo">Efectivo</option>
             <option value="Tarjeta">Tarjeta</option>
-            <option value="Transferencia">Transferencia</option>
           </select>
         </div>
 

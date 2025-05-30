@@ -31,6 +31,7 @@ export default defineNuxtConfig({
     graphUrlServer: process.env.GRAPHQL_URL_SERVER,
     apiKey: process.env.API_KEY,
     public: {
+       companyAccount: process.env.COMPANY_ACCOUNT,
       graphqlURL: process.env.PORTAL_URL,
       graphqlToken: process.env.GRAPHQL_TOKEN,
       graphUrlServer: process.env.GRAPHQL_URL_SERVER,
