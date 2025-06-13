@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineEmits, ref, computed } from 'vue'
+import { defineEmits, ref, computed, watch } from 'vue'
 import { useQuery, useMutation } from '@vue/apollo-composable'
 
 import GetProveedores from '~/api/proveedores/getProveedores.gql'
@@ -77,6 +77,25 @@ async function guardar() {
     console.error('Error al guardar compra:', e)
   }
 }
+
+// Watch para asignar precioVenta automáticamente
+watch(
+  () => form.value.productos,
+  (productos) => {
+    productos.forEach((prod) => {
+      watch(
+        () => prod.codProducto,
+        (nuevoCod) => {
+          const productoSeleccionado = productosResult.value?.productos.find(
+            p => p.codProducto === parseInt(nuevoCod)
+          )
+          prod.precioProducto = productoSeleccionado ? productoSeleccionado.precioVenta : 0
+        }
+      )
+    })
+  },
+  { deep: true, immediate: true }
+)
 </script>
 
 <template>
@@ -143,7 +162,7 @@ async function guardar() {
 
               <div class="flex-1">
                 <label class="block text-sm font-medium mb-1">Precio:</label>
-                <input type="number" v-model.number="prod.precioProducto" min="0" class="input w-[100px]" />
+                <input type="number" :value="prod.precioProducto" readonly class="input w-[100px]" />
               </div>
             </div>
 
