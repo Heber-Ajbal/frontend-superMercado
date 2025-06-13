@@ -89,7 +89,7 @@ watch(
           const productoSeleccionado = productosResult.value?.productos.find(
             p => p.codProducto === parseInt(nuevoCod)
           )
-          prod.precioProducto = productoSeleccionado ? productoSeleccionado.precioVenta : 0
+          prod.precioProducto = productoSeleccionado ? productoSeleccionado.precioCompra : 0
         }
       )
     })
