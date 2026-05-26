@@ -7,8 +7,6 @@ import GetProductos from '~/api/productos/getProductos.gql'
 import CrearVenta from '~/api/ventas/crearVenta.gql'
 import ClienteForm from '~/components/clientes/ClienteForm.vue'
 import GetInventario from '~/api/inventario/getInventario.gql'
-import { env } from 'process'
-
 const config = useRuntimeConfig()
 const props = defineProps<{ visible: boolean }>()
 const emit = defineEmits(['close'])
@@ -128,12 +126,11 @@ async function guardar() {
     hora: form.value.Hora + ':00',
     monto: total.value,
     detalles: form.value.Detalle.map(({ producto, cantidad, descuento }) => {
-      const precio = productos.value.find(p => p.codProducto === producto)?.precioVenta ?? 0
-      const descuentoFinal = (descuento / 100) * precio * cantidad
       return {
         codProducto: producto,
         cantidad,
-        descuento: descuentoFinal
+        descuento: 0,
+        descuentoPorcentaje: descuento
       }
     })
   }

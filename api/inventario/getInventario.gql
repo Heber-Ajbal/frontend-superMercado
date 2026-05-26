@@ -4,6 +4,7 @@ query GetInventario {
     cantidad
     ubicacion
     codProducto
+    idAlmacen
     codProductoNavigation{
       nombre
       imagen

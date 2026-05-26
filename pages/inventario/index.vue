@@ -2,11 +2,13 @@
 import Page from '~/components/Page.vue'
 import Breadcrumb from '~/components/ui/Breadcrumb.vue'
 import InventarioForm from '~/components/inventario/InventarioForm.vue'
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onActivated } from 'vue'
 import { useQuery } from '@vue/apollo-composable'
 import GetInventario from '~/api/inventario/getInventario.gql'
 
-const { result, loading, refetch } = useQuery(GetInventario)
+const { result, loading, refetch } = useQuery(GetInventario, null, {
+  fetchPolicy: 'network-only',
+})
 const inventario = computed(() => result.value?.inventarios ?? [])
 
 // ✅ Agrupar por producto + (piso de ventas o idAlmacen)
@@ -27,8 +29,10 @@ const inventarioAgrupado = computed(() => {
     if (!mapa.has(clave)) {
       mapa.set(clave, {
         codProducto: cod,
+        idAlmacen: item.idAlmacen ?? '',
         cantidad: item.cantidad ?? 0,
         codProductoNavigation: item.codProductoNavigation,
+        ubicacionOriginal: item.ubicacion,
         ubicacion: esPisoVentas ? 'Piso de Ventas' : item.idAlmacenNavigation?.nombre ?? 'Almacén',
       })
     } else {
@@ -51,6 +55,19 @@ function editarRegistro(item: any) {
   inventarioSeleccionado.value = { ...item }
   showModal.value = true
 }
+
+async function cerrarModal() {
+  showModal.value = false
+  await refetch()
+}
+
+onMounted(async () => {
+  await refetch()
+})
+
+onActivated(async () => {
+  await refetch()
+})
 </script>
 
 <template>
@@ -117,6 +134,6 @@ function editarRegistro(item: any) {
     <InventarioForm
       v-if="showModal"
       :registro="inventarioSeleccionado"
-      @close="showModal = false; refetch()" />
+      @close="cerrarModal" />
   </Page>
 </template>

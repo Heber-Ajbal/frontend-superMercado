@@ -5,6 +5,7 @@ import { useQuery, useMutation } from '@vue/apollo-composable'
 import GetProveedores from '~/api/proveedores/getProveedores.gql'
 import GetEmpleados from '~/api/empleados/getEmpleados.gql'
 import GetProductos from '~/api/productos/getProductos.gql'
+import GetAlmacenes from '~/api/almacenes/getAlmacenes.gql'
 import CrearCompra from '~/api/compras/crearCompra.gql'
 import ProductoForm from '~/components/productos/ProductoForm.vue'
 
@@ -16,7 +17,7 @@ const form = ref({
   fecha: new Date().toISOString().slice(0, 10),
   tipoPago: 'Efectivo',
   productos: [
-    { codProducto: null, cantidad: 1, precioProducto: 0 }
+    { codProducto: null, cantidad: 1, precioProducto: 0, destino: 'piso', idAlmacen: '' }
   ]
 })
 
@@ -24,11 +25,12 @@ const showProductoForm = ref(false)
 
 const { result: proveedoresResult } = useQuery(GetProveedores)
 const { result: empleadosResult } = useQuery(GetEmpleados)
+const { result: almacenesResult } = useQuery(GetAlmacenes)
 const { result: productosResult, refetch: refetchProductos } = useQuery(GetProductos)
 const { mutate } = useMutation(CrearCompra)
 
 function agregarProducto() {
-  form.value.productos.push({ codProducto: null, cantidad: 1, precioProducto: 0 })
+  form.value.productos.push({ codProducto: null, cantidad: 1, precioProducto: 0, destino: 'piso', idAlmacen: '' })
 }
 
 function eliminarProducto(index: number) {
@@ -68,7 +70,9 @@ async function guardar() {
         detalleCompras: form.value.productos.map(p => ({
           codProducto: parseInt(p.codProducto),
           cantidad: p.cantidad,
-          precioProducto: p.precioProducto
+          precioProducto: p.precioProducto,
+          ingresarAPisoVentas: p.destino === 'piso',
+          idAlmacen: p.destino === 'almacen' ? parseInt(p.idAlmacen) : null
         }))
       }
     })
@@ -153,6 +157,26 @@ watch(
                 {{ p.nombre }}
               </option>
             </select>
+
+            <div class="flex gap-4 w-full">
+              <div class="flex-1">
+                <label class="block text-sm font-medium mb-1">Destino:</label>
+                <select v-model="prod.destino" class="input">
+                  <option value="piso">Piso de Ventas</option>
+                  <option value="almacen">Almacén</option>
+                </select>
+              </div>
+
+              <div v-if="prod.destino === 'almacen'" class="flex-1">
+                <label class="block text-sm font-medium mb-1">Bodega:</label>
+                <select v-model="prod.idAlmacen" class="input" required>
+                  <option value="">Seleccionar almacén</option>
+                  <option v-for="a in almacenesResult?.almacenes || []" :key="a.idAlmacen" :value="a.idAlmacen">
+                    {{ a.nombre }}
+                  </option>
+                </select>
+              </div>
+            </div>
 
             <div class="flex gap-4">
               <div class="flex-1">

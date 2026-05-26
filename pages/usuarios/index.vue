@@ -3,14 +3,16 @@ import Page from '~/components/Page.vue'
 import Breadcrumb from '~/components/ui/Breadcrumb.vue'
 import Table from '~/components/ui/Table.vue'
 import UsuarioForm from '~/components/usuarios/UsuarioForm.vue'
-import { ref } from 'vue'
+import { ref, onMounted, onActivated } from 'vue'
 import { useQuery, onResult } from '@vue/apollo-composable'
 import GetUsuarios from '~/api/users/getUsers.gql'
 
 const showModal = ref(false)
 const usuarios = ref([])
 
-const { result, refetch } = useQuery(GetUsuarios)
+const { result, refetch } = useQuery(GetUsuarios, null, {
+  fetchPolicy: 'network-only',
+})
 
 // ✅ Cargar usuarios cuando los datos estén disponibles
 watch(result, (value) => {
@@ -21,12 +23,21 @@ watch(result, (value) => {
 
 
 // ✅ Cerrar modal y refrescar usuarios
-function handleClose() {
+async function handleClose() {
   showModal.value = false
-  refetch().then(({ data }) => {
-    usuarios.value = data?.usuarios ?? []
-  })
+  const { data } = await refetch()
+  usuarios.value = data?.usuarios ?? []
 }
+
+onMounted(async () => {
+  const { data } = await refetch()
+  usuarios.value = data?.usuarios ?? []
+})
+
+onActivated(async () => {
+  const { data } = await refetch()
+  usuarios.value = data?.usuarios ?? []
+})
 
 function abrirModal() {
   showModal.value = true

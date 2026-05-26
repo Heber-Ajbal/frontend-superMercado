@@ -3,7 +3,7 @@ import Page from '~/components/Page.vue'
 import Breadcrumb from '~/components/ui/Breadcrumb.vue'
 import Table from '~/components/ui/Table.vue'
 import ClienteForm from '~/components/clientes/ClienteForm.vue'
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted, onActivated } from 'vue'
 import { useQuery } from '@vue/apollo-composable'
 import GetClientes from '~/api/clientes/getClientes.gql'
 
@@ -11,7 +11,9 @@ const showModal = ref(false)
 const clienteSeleccionado = ref(null)
 const clientes = ref([])
 
-const { result, refetch } = useQuery(GetClientes)
+const { result, refetch } = useQuery(GetClientes, null, {
+  fetchPolicy: 'network-only',
+})
 
 
 const breadcrumb = [
@@ -38,10 +40,18 @@ function editarCliente(cliente: any) {
   showModal.value = true
 }
 
-function cerrarModal() {
+async function cerrarModal() {
   showModal.value = false
-  refetch()
+  await refetch()
 }
+
+onMounted(async () => {
+  await refetch()
+})
+
+onActivated(async () => {
+  await refetch()
+})
 </script>
 
 <template>

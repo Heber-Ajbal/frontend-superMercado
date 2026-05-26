@@ -2,7 +2,7 @@
 import Page from '~/components/Page.vue'
 import Breadcrumb from '~/components/ui/Breadcrumb.vue'
 import VentaForm from '~/components/ventas/VentaForm.vue'
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted, onActivated } from 'vue'
 import { useQuery } from '@vue/apollo-composable'
 import GetVentas from '~/api/ventas/getVentas.gql'
 import { generarFacturaPDF } from '~/utils/factura'  // Asegúrate que exportas esta función correctamente
@@ -10,7 +10,9 @@ import { generarFacturaPDF } from '~/utils/factura'  // Asegúrate que exportas 
 const showModal = ref(false)
 const ventaExpandidaId = ref<number | null>(null)
 
-const { result, loading, error, refetch } = useQuery(GetVentas)
+const { result, loading, error, refetch } = useQuery(GetVentas, null, {
+  fetchPolicy: 'network-only',
+})
 const ventas = ref<any[]>([])
 
 watch(result, () => {
@@ -37,6 +39,19 @@ function generarFactura(venta: any) {
   // Usar la función importada directamente
   generarFacturaPDF(venta)
 }
+
+async function cerrarModal() {
+  showModal.value = false
+  await refetch()
+}
+
+onMounted(async () => {
+  await refetch()
+})
+
+onActivated(async () => {
+  await refetch()
+})
 </script>
 
 <template>
@@ -129,6 +144,6 @@ function generarFactura(venta: any) {
       </div>
     </div>
 
-    <VentaForm :visible="showModal" @close="showModal = false; refetch()" />
+    <VentaForm :visible="showModal" @close="cerrarModal" />
   </Page>
 </template>

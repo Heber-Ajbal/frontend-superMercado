@@ -2,7 +2,7 @@
 import Page from '~/components/Page.vue'
 import Breadcrumb from '~/components/ui/Breadcrumb.vue'
 import ProductoForm from '~/components/productos/ProductoForm.vue'
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted, onActivated } from 'vue'
 import { useQuery } from '@vue/apollo-composable'
 import GetProductos from '~/api/productos/getProductos.gql'
 
@@ -10,7 +10,9 @@ const showModal = ref(false)
 const productoSeleccionado = ref(null)
 const productos = ref([])
 
-const { result, refetch } = useQuery(GetProductos)
+const { result, refetch } = useQuery(GetProductos, null, {
+  fetchPolicy: 'network-only',
+})
 
 watch(result, () => {
   if (result.value?.productos) {
@@ -28,10 +30,18 @@ function editarProducto(producto: any) {
   showModal.value = true
 }
 
-function cerrarModal() {
+async function cerrarModal() {
   showModal.value = false
-  refetch()
+  await refetch()
 }
+
+onMounted(async () => {
+  await refetch()
+})
+
+onActivated(async () => {
+  await refetch()
+})
 
 // Función para formatear precios en quetzales
 function formatoQ(valor: number | undefined) {

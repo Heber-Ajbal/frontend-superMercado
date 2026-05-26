@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineProps, defineEmits, ref, computed } from 'vue'
+import { defineProps, defineEmits, ref, computed, watch } from 'vue'
 import { useMutation, useQuery } from '@vue/apollo-composable'
 import CrearMovimiento from '~/api/movimientos/crearMovimiento.gql'
 import GetInventario from '~/api/inventario/getInventario.gql'
@@ -19,7 +19,9 @@ const form = ref({
 
 const tipoMovimiento = ref('Bodega a Piso') // Valores posibles: 'Bodega a Piso' o 'Piso a Bodega'
 
-const { result: inventarioResult } = useQuery(GetInventario)
+const { result: inventarioResult } = useQuery(GetInventario, null, {
+  fetchPolicy: 'network-only',
+})
 const { result: empleadosResult } = useQuery(GetEmpleados)
 const { result: almacenesResult } = useQuery(GetAlmacenes)
 const { result: productosResult } = useQuery(GetProductos)
@@ -38,6 +40,34 @@ const productoInventario = computed(() =>
     i.ubicacion === ubicacionOrigen.value &&
     (ubicacionOrigen.value === 'Piso de Ventas' || i.idAlmacen == form.value.idAlmacen)
   )
+)
+
+watch(
+  () => props.registro,
+  (registro) => {
+    if (!registro) {
+      form.value = {
+        idAlmacen: '',
+        codProducto: '',
+        cantidad: 1,
+        idEmpleado: ''
+      }
+      tipoMovimiento.value = 'Bodega a Piso'
+      return
+    }
+
+    form.value = {
+      idAlmacen: registro.idAlmacen ?? '',
+      codProducto: registro.codProducto ?? '',
+      cantidad: 1,
+      idEmpleado: ''
+    }
+
+    tipoMovimiento.value = registro.ubicacionOriginal === 'Piso de Ventas'
+      ? 'Piso a Bodega'
+      : 'Bodega a Piso'
+  },
+  { immediate: true }
 )
 
 async function guardar() {

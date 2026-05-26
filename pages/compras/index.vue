@@ -2,14 +2,16 @@
 import Page from '~/components/Page.vue'
 import Breadcrumb from '~/components/ui/Breadcrumb.vue'
 import CompraForm from '~/components/compras/CompraForm.vue'
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onActivated } from 'vue'
 import { useQuery } from '@vue/apollo-composable'
 import GetCompras from '~/api/compras/getCompras.gql'
 
 const showModal = ref(false)
 const compraExpandidaId = ref<number | null>(null)
 
-const { result, refetch } = useQuery(GetCompras)
+const { result, refetch } = useQuery(GetCompras, null, {
+  fetchPolicy: 'network-only',
+})
 
 const compras = computed(() =>
   (result.value?.compras || []).map(c => ({
@@ -34,6 +36,19 @@ function toggleDetalles(id: number) {
 function agregarCompra() {
   showModal.value = true
 }
+
+async function cerrarModal() {
+  showModal.value = false
+  await refetch()
+}
+
+onMounted(async () => {
+  await refetch()
+})
+
+onActivated(async () => {
+  await refetch()
+})
 </script>
 
 <template>
@@ -94,6 +109,6 @@ function agregarCompra() {
       </div>
     </div>
 
-    <CompraForm v-if="showModal" @close="showModal = false; refetch()" />
+    <CompraForm v-if="showModal" @close="cerrarModal" />
   </Page>
 </template>
