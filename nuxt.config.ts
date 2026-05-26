@@ -20,6 +20,11 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     'pinia-plugin-persistedstate/nuxt',
   ],
+  colorMode: {
+    classSuffix: '',
+    preference: 'light',
+    fallback: 'light',
+  },
   pinia: {
     autoImports: [
       'defineStore', // import { defineStore } from 'pinia'

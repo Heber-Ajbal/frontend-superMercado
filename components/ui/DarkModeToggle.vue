@@ -1,6 +1,7 @@
 <template>
   <button
     class="rounded-lg p-2.5 text-sm text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
+    :aria-label="isDarkMode ? 'Activar modo claro' : 'Activar modo oscuro'"
     @click="toggleDarkMode"
   >
     <span v-if="isDarkMode">🌙</span>
@@ -8,34 +9,13 @@
   </button>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue'
+<script setup lang="ts">
+const colorMode = useColorMode()
 
-const isDarkMode = ref(false)
+const isDarkMode = computed(() => colorMode.value === 'dark')
 
-onMounted(() => {
-  if (
-    localStorage.theme === 'dark' ||
-    (!('theme' in localStorage) &&
-      window.matchMedia('(prefers-color-scheme: dark)').matches)
-  ) {
-    isDarkMode.value = true
-    document.documentElement.classList.add('dark')
-  } else {
-    isDarkMode.value = false
-    document.documentElement.classList.remove('dark')
-  }
-})
-
-const toggleDarkMode = () => {
-  isDarkMode.value = !isDarkMode.value
-  if (isDarkMode.value) {
-    document.documentElement.classList.add('dark')
-    localStorage.setItem('theme', 'dark')
-  } else {
-    document.documentElement.classList.remove('dark')
-    localStorage.setItem('theme', 'light')
-  }
+function toggleDarkMode() {
+  colorMode.preference = isDarkMode.value ? 'light' : 'dark'
 }
 </script>
 
