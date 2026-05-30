@@ -47,11 +47,10 @@ function cerrarProductoForm() {
 }
 
 function formatoMoneda(valor: number) {
-  return new Intl.NumberFormat('es-GT', {
-    style: 'currency',
-    currency: 'GTQ',
-    minimumFractionDigits: 2
-  }).format(valor)
+  return `Q${new Intl.NumberFormat('es-GT', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(valor)}`
 }
 
 const total = computed(() =>

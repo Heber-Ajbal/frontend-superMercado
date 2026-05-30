@@ -131,11 +131,10 @@ function isWithinRange(dateValue: string, start: string, end: string) {
 }
 
 function formatCurrency(value: number | string | null | undefined) {
-  return new Intl.NumberFormat('es-GT', {
-    style: 'currency',
-    currency: 'GTQ',
-    minimumFractionDigits: 2
-  }).format(Number(value ?? 0))
+  return `Q${new Intl.NumberFormat('es-GT', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(Number(value ?? 0))}`
 }
 
 function formatNumber(value: number | string | null | undefined) {
