@@ -1,4 +1,5 @@
 import { useAuthStore } from '~/stores/auth'
+import { canAccessRoute } from '~/utils/roleAccess'
 
 export default defineNuxtRouteMiddleware((to) => {
   const auth = useAuthStore()
@@ -9,5 +10,9 @@ export default defineNuxtRouteMiddleware((to) => {
   // Si no está autenticado, redirigir
   if (!auth.user) {
     return navigateTo('/login')
+  }
+
+  if (!canAccessRoute(auth.user.rol, to.path)) {
+    return navigateTo('/')
   }
 })

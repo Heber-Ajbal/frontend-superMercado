@@ -1,0 +1,43 @@
+query GetDashboardResumen {
+  dashboardResumen {
+    totalClientes
+    totalProductos
+    totalProveedores
+    totalEmpleados
+    ventasHoy
+    comprasHoy
+    ingresosHoy
+    ingresosMes
+    comprasMes
+    ticketPromedioHoy
+    unidadesPisoVentas
+    unidadesBodega
+    unidadesInventario
+    productosSinStock
+    productosStockBajo
+    valorInventarioCosto
+    valorInventarioVenta
+    utilidadPotencialInventario
+    ventasUltimos7Dias {
+      fecha
+      monto
+      operaciones
+    }
+    comprasUltimos7Dias {
+      fecha
+      monto
+      operaciones
+    }
+    topProductosVendidos {
+      codProducto
+      nombre
+      cantidadVendida
+    }
+    productosBajoStock {
+      codProducto
+      nombre
+      stockPisoVentas
+      stockTotal
+    }
+  }
+}
