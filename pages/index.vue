@@ -7,6 +7,7 @@ import {
   faBox,
   faCashRegister,
   faChartPie,
+  faFileLines,
   faShoppingCart,
   faTruck,
   faUsers,
@@ -21,6 +22,7 @@ const auth = useAuthStore()
 
 const modules = [
   { label: 'Dashboard', icon: faChartPie, to: '/dashboard', colorClass: 'text-cyan-600', description: 'KPIs, tendencias y alertas del negocio.' },
+  { label: 'Reportes', icon: faFileLines, to: '/reportes', colorClass: 'text-slate-700', description: 'Reportería filtrada y exportación para impresión.' },
   { label: 'Clientes', icon: faUsers, to: '/clientes', colorClass: 'text-blue-700', description: 'Consulta y administración de clientes.' },
   { label: 'Empleados', icon: faUserTie, to: '/empleados', colorClass: 'text-emerald-600', description: 'Gestión del personal operativo.' },
   { label: 'Productos', icon: faBox, to: '/productos', colorClass: 'text-orange-600', description: 'Catálogo, precios e imágenes.' },

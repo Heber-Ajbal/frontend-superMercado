@@ -10,6 +10,7 @@ const ADMIN_LIKE_ROLES: AppRole[] = ['Administrador', 'Supervisor']
 
 const routeRules: RouteRule[] = [
   { prefix: '/dashboard', roles: ALL_ROLES },
+  { prefix: '/reportes', roles: ADMIN_LIKE_ROLES },
   { prefix: '/usuarios', roles: ADMIN_LIKE_ROLES },
   { prefix: '/empleados', roles: ADMIN_LIKE_ROLES },
   { prefix: '/ventas', roles: [...ADMIN_LIKE_ROLES, 'Cajero'] },
